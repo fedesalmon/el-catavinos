@@ -1,0 +1,58 @@
+<%- include('_head', { title: 'Inicio' }) %>
+<div class="ahead"><h1>Hola<%= admin.name && admin.name !== 'Administrador' ? ', ' + admin.name : '' %> 👋</h1>
+  <div class="ahead__actions"><a href="/admin/productos/nuevo" class="abtn abtn--wine">+ Nuevo producto</a><a href="/admin/blog/nuevo" class="abtn abtn--ghost">+ Artículo</a></div></div>
+
+<% if (!setup.mail || !setup.card) { %>
+<div class="anote">
+  <strong>Configuración pendiente</strong>
+  <ul>
+    <% if (!setup.card) { %><li>Pagos con tarjeta desactivados: falta la clave de Stripe (<code>STRIPE_SECRET_KEY</code>). Mientras tanto se puede pagar en tienda.</li><% } %>
+    <% if (!setup.mail) { %><li>Avisos por email desactivados: falta configurar el correo (<code>SMTP_*</code>). Los pedidos, reservas y mensajes siguen apareciendo aquí.</li><% } %>
+  </ul>
+  <span class="small muted">Consulta el archivo LEEME.md para activarlos.</span>
+</div>
+<% } %>
+
+<div class="stats">
+  <a class="stat" href="/admin/pedidos"><span>Ventas últimos 30 días</span><strong><%= money(stats.sales30.s) %></strong><small><%= stats.sales30.n %> pedidos</small></a>
+  <a class="stat" href="/admin/pedidos?estado=pagado"><span>Pedidos por preparar</span><strong><%= counts.orders %></strong><small>pagados o pago en tienda</small></a>
+  <a class="stat" href="/admin/reservas?estado=pendiente"><span>Reservas pendientes</span><strong><%= counts.bookings %></strong><small>por confirmar</small></a>
+  <a class="stat" href="/admin/mensajes"><span>Mensajes sin leer</span><strong><%= counts.messages %></strong><small>del formulario</small></a>
+</div>
+
+<div class="agrid2">
+  <section class="acard">
+    <div class="acard__head"><h2>Últimos pedidos</h2><a href="/admin/pedidos">Ver todos</a></div>
+    <% if (!recentOrders.length) { %><p class="muted">Aún no hay pedidos.</p><% } %>
+    <ul class="alist">
+      <% recentOrders.forEach(o => { %>
+      <li><a href="/admin/pedidos/<%= o.number %>"><span><strong><%= o.customer_name %></strong><small><%= o.number %> · <%= formatDateTime(o.created_at) %></small></span>
+        <span class="right"><strong><%= money(o.total_cents) %></strong><span class="st st--<%= o.status %>"><%= STATUS_LABELS[o.status] %></span></span></a></li>
+      <% }) %>
+    </ul>
+  </section>
+  <section class="acard">
+    <div class="acard__head"><h2>Reservas por confirmar</h2><a href="/admin/reservas">Ver todas</a></div>
+    <% if (!pendingBookings.length) { %><p class="muted">No hay reservas pendientes.</p><% } %>
+    <ul class="alist">
+      <% pendingBookings.forEach(b => { %>
+      <li><a href="/admin/reservas#r<%= b.id %>"><span><strong><%= b.name %></strong><small><%= b.tasting_name %> · <%= b.people %> pers.</small></span><span class="right"><strong><%= formatDate(b.date, { day: 'numeric', month: 'short' }) %></strong><small><%= b.time %></small></span></a></li>
+      <% }) %>
+    </ul>
+  </section>
+  <section class="acard">
+    <div class="acard__head"><h2>Stock bajo</h2><a href="/admin/productos?estado=agotados">Agotados</a></div>
+    <% if (!stats.lowStock.length) { %><p class="muted">Todo con stock suficiente.</p><% } %>
+    <ul class="alist">
+      <% stats.lowStock.forEach(p => { %><li><a href="/admin/productos/<%= p.id %>"><span><%= p.name %></span><span class="st <%= p.stock <= 0 ? 'st--cancelado' : 'st--pendiente_pago' %>"><%= p.stock %> uds.</span></a></li><% }) %>
+    </ul>
+  </section>
+  <section class="acard">
+    <div class="acard__head"><h2>Mensajes nuevos</h2><a href="/admin/mensajes">Ver todos</a></div>
+    <% if (!unread.length) { %><p class="muted">No hay mensajes sin leer.</p><% } %>
+    <ul class="alist">
+      <% unread.forEach(m => { %><li><a href="/admin/mensajes#m<%= m.id %>"><span><strong><%= m.name %></strong><small><%= m.subject %> · <%= m.body.slice(0, 60) %>…</small></span></a></li><% }) %>
+    </ul>
+  </section>
+</div>
+<%- include('_foot') %>

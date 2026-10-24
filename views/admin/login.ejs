@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">
+<title>Acceso · <%= s.business_name %></title><link rel="icon" href="/img/favicon-32.png">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/admin.css?v=1"></head>
+<body class="login">
+  <form method="post" action="/admin/login" class="acard login__card">
+    <img src="/img/site/logo.webp" alt="<%= s.business_name %>" width="160" height="89">
+    <h1>Panel de gestión</h1>
+    <% if (error) { %><div class="aerr"><%= error %></div><% } %>
+    <input type="hidden" name="next" value="<%= next %>">
+    <label class="af">Email<input type="email" name="email" required autocomplete="username" autofocus></label>
+    <label class="af">Contraseña<input type="password" name="password" required autocomplete="current-password"></label>
+    <button class="abtn abtn--wine abtn--block">Entrar</button>
+    <a href="/" class="small muted">← Volver a la web</a>
+  </form>
+</body></html>

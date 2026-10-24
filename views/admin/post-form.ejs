@@ -1,0 +1,28 @@
+<%- include('_head', { title: post.id ? post.title : 'Nuevo artículo' }) %>
+<div class="ahead"><h1><%= post.id ? 'Editar artículo' : 'Nuevo artículo' %></h1><div class="ahead__actions"><a href="/admin/blog" class="abtn abtn--ghost">← Blog</a><% if (post.id) { %><a href="/blog/<%= post.slug %>" target="_blank" class="abtn abtn--ghost">Ver ↗</a><% } %></div></div>
+<form method="post" enctype="multipart/form-data" class="aform">
+  <div class="aform__main">
+    <section class="acard">
+      <label class="af">Título<input name="title" required value="<%= post.title || '' %>"></label>
+      <label class="af">Entradilla <small>Resumen de 1-2 frases (también se usa en Google).</small><textarea name="excerpt" rows="2"><%= post.excerpt || '' %></textarea></label>
+      <label class="af">Texto
+        <small>Línea en blanco = nuevo párrafo · <code>## Título</code> · <code>**negrita**</code> · <code>- lista</code> · <code>[texto](https://enlace)</code></small>
+        <textarea name="body" rows="18" class="mono"><%= post.body || '' %></textarea></label>
+    </section>
+  </div>
+  <aside class="aform__side">
+    <section class="acard">
+      <h2>Publicación</h2>
+      <label class="acheck"><input type="checkbox" name="published" value="1" <%= post.published ? 'checked' : '' %>> Publicado</label>
+      <label class="af">Fecha<input type="date" name="published_at" value="<%= post.published_at %>"></label>
+    </section>
+    <section class="acard">
+      <h2>Imagen de portada</h2>
+      <% if (post.image) { %><img src="<%= thumb(post.image) %>" alt="" class="aimg-prev"><% } %>
+      <label class="afile"><input type="file" name="image_file" accept="image/*" data-preview><span>📷 Subir imagen</span></label>
+    </section>
+    <button class="abtn abtn--wine abtn--block abtn--lg">Guardar</button>
+    <% if (post.id) { %><button name="delete" value="1" class="abtn abtn--danger abtn--block" data-confirm="¿Eliminar este artículo?" formnovalidate>Eliminar</button><% } %>
+  </aside>
+</form>
+<%- include('_foot') %>

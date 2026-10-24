@@ -1,0 +1,41 @@
+<%- include('_head', { title: 'Pedido ' + order.number }) %>
+<div class="ahead"><h1>Pedido <%= order.number %></h1><div class="ahead__actions"><a href="/admin/pedidos" class="abtn abtn--ghost">← Pedidos</a><button class="abtn abtn--ghost" onclick="print()">Imprimir</button></div></div>
+<div class="aform">
+  <div class="aform__main">
+    <section class="acard">
+      <h2>Productos</h2>
+      <table class="atable atable--plain">
+        <% order.items.forEach(i => { %><tr><td><%= i.qty %> ×</td><td><% if (i.product_id) { %><a href="/admin/productos/<%= i.product_id %>"><%= i.name %></a><% } else { %><%= i.name %><% } %></td><td class="right"><%= money(i.price_cents * i.qty) %></td></tr><% }) %>
+        <tr><td></td><td>Subtotal</td><td class="right"><%= money(order.subtotal_cents) %></td></tr>
+        <tr><td></td><td>Envío</td><td class="right"><%= money(order.shipping_cents) %></td></tr>
+        <tr class="strong"><td></td><td>Total</td><td class="right"><%= money(order.total_cents) %></td></tr>
+      </table>
+    </section>
+    <section class="acard">
+      <h2>Cliente y entrega</h2>
+      <dl class="adl">
+        <dt>Nombre</dt><dd><%= order.customer_name %></dd>
+        <dt>Email</dt><dd><a href="mailto:<%= order.email %>?subject=Tu pedido <%= order.number %>"><%= order.email %></a></dd>
+        <dt>Teléfono</dt><dd><a href="tel:<%= order.phone %>"><%= order.phone %></a></dd>
+        <dt>Entrega</dt><dd><%= DELIVERY_LABELS[order.delivery_method] %></dd>
+        <% if (order.delivery_method === 'domicilio') { %><dt>Dirección</dt><dd><%= order.address %><br><%= order.postal_code %> <%= order.city %> · <a target="_blank" href="https://www.google.com/maps/search/?api=1&query=<%= encodeURIComponent(order.address + ', ' + order.postal_code + ' ' + order.city) %>">Mapa ↗</a></dd><% } %>
+        <dt>Pago</dt><dd><%= PAYMENT_LABELS[order.payment_method] %><%= order.paid_at ? ' · pagado el ' + formatDateTime(order.paid_at) : '' %></dd>
+        <% if (order.notes) { %><dt>Notas</dt><dd><%= order.notes %></dd><% } %>
+        <% if (order.is_gift) { %><dt>Regalo</dt><dd>Sí. Mensaje: «<%= order.gift_message %>» (no incluir precios)</dd><% } %>
+      </dl>
+    </section>
+  </div>
+  <aside class="aform__side">
+    <form method="post" class="acard">
+      <h2>Estado</h2>
+      <p><span class="st st--<%= order.status %>"><%= STATUS_LABELS[order.status] %></span></p>
+      <label class="af">Cambiar a
+        <select name="status"><% Object.entries(STATUS_LABELS).forEach(([k, v]) => { %><option value="<%= k %>" <%= order.status === k ? 'selected' : '' %>><%= v %></option><% }) %></select>
+      </label>
+      <p class="small muted">Al cancelar, el stock se devuelve automáticamente. Los reembolsos con tarjeta se hacen desde el panel de Stripe.</p>
+      <label class="af">Notas internas<textarea name="admin_notes" rows="3"><%= order.admin_notes %></textarea></label>
+      <button class="abtn abtn--wine abtn--block">Guardar</button>
+    </form>
+  </aside>
+</div>
+<%- include('_foot') %>

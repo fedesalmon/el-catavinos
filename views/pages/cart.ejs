@@ -1,0 +1,46 @@
+<%- include('../partials/head') %>
+<section class="band band--tight">
+  <div class="wrap">
+    <h1 class="h-page">Tu carrito</h1>
+    <% if (!cart.items.length) { %>
+      <div class="empty"><svg class="i"><use href="/img/icons.svg#bag"/></svg><p>Tu carrito está vacío.</p><a href="/tienda" class="btn btn--wine">Ir a la tienda</a></div>
+    <% } else { %>
+    <div class="cartpage">
+      <ul class="cartlist">
+        <% cart.items.forEach(i => { %>
+        <li class="citem">
+          <a href="/tienda/<%= i.product.slug %>" class="citem__img"><% if (i.product.image) { %><img src="<%= thumb(i.product.image) %>" alt="" loading="lazy"><% } %></a>
+          <div class="citem__info">
+            <a href="/tienda/<%= i.product.slug %>" class="citem__name"><%= i.product.name %></a>
+            <span class="muted small"><%= money(i.product.price_cents) %> / ud.</span>
+            <% if (i.limited) { %><span class="small warn">Ajustado al stock disponible</span><% } %>
+          </div>
+          <form method="post" action="/carrito/actualizar" class="citem__qty">
+            <input type="hidden" name="product_id" value="<%= i.product.id %>">
+            <label class="sr" for="q<%= i.product.id %>">Cantidad</label>
+            <select id="q<%= i.product.id %>" name="qty" onchange="this.form.submit()">
+              <% for (let n = 0; n <= Math.min(i.product.stock, 24); n++) { %><option value="<%= n %>" <%= n === i.qty ? 'selected' : '' %>><%= n === 0 ? 'Quitar' : n %></option><% } %>
+            </select>
+            <noscript><button class="btn btn--sm btn--ghost">Actualizar</button></noscript>
+          </form>
+          <strong class="citem__total"><%= money(i.line_cents) %></strong>
+        </li>
+        <% }) %>
+      </ul>
+      <aside class="summary card">
+        <h2 class="h-card">Resumen</h2>
+        <div class="summary__row"><span>Subtotal</span><strong><%= money(cart.subtotal_cents) %></strong></div>
+        <% if (cart.needsShipping) { const left = s.free_shipping_threshold_cents - cart.subtotal_cents; %>
+          <div class="shipmeter">
+            <div class="shipmeter__bar"><span style="width: <%= Math.min(100, Math.round(cart.subtotal_cents / s.free_shipping_threshold_cents * 100)) %>%"></span></div>
+            <p class="small"><%= left > 0 ? `Te faltan ${money(left)} para el envío gratis en Madrid` : '¡Tienes envío gratis en Madrid!' %></p>
+          </div>
+        <% } %>
+        <a href="/checkout" class="btn btn--wine btn--block btn--lg">Finalizar compra</a>
+        <a href="/tienda" class="btn btn--ghost btn--block">Seguir comprando</a>
+      </aside>
+    </div>
+    <% } %>
+  </div>
+</section>
+<%- include('../partials/foot') %>

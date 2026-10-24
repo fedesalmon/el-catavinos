@@ -1,0 +1,12 @@
+<%- include('_head', { title: 'Blog' }) %>
+<div class="ahead"><h1>Blog</h1><div class="ahead__actions"><a href="/admin/blog/nuevo" class="abtn abtn--wine">+ Nuevo artículo</a></div></div>
+<div class="acards">
+  <% list.forEach(p => { %>
+  <a href="/admin/blog/<%= p.id %>" class="acard arow <%= p.published ? '' : 'is-off' %>">
+    <img src="<%= thumb(p.image) %>" alt="">
+    <span><strong><%= p.title %></strong><small class="muted block"><%= formatDate(p.published_at) %><%= p.published ? '' : ' · Borrador' %></small></span>
+    <span class="right">Editar →</span>
+  </a>
+  <% }) %>
+</div>
+<%- include('_foot') %>

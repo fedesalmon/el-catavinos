@@ -1,0 +1,60 @@
+<%- include('_head', { title: 'Ajustes' }) %>
+<div class="ahead"><h1>Ajustes y tienda</h1></div>
+<form method="post" class="acards">
+  <input type="hidden" name="_form" value="ajustes">
+  <section class="acard">
+    <h2>Datos del negocio</h2>
+    <p class="small muted">Aparecen en la cabecera, el pie de página, el contacto y los emails.</p>
+    <div class="agrid-f">
+      <label class="af">Nombre<input name="business_name" value="<%= s.business_name %>"></label>
+      <label class="af">Email de contacto<input name="email" type="email" value="<%= s.email %>"></label>
+      <label class="af">Teléfono (como se muestra)<input name="phone" value="<%= s.phone %>"></label>
+      <label class="af">Teléfono internacional <small>Para el botón «Llamar»</small><input name="phone_intl" value="<%= s.phone_intl %>" placeholder="+34910143404"></label>
+      <label class="af">WhatsApp <small>Opcional, con prefijo (+34…)</small><input name="whatsapp" value="<%= s.whatsapp %>"></label>
+      <label class="af">Dirección<input name="address_line" value="<%= s.address_line %>"></label>
+      <label class="af">Barrio, CP y ciudad<input name="address_city" value="<%= s.address_city %>"></label>
+      <label class="af">Enlace a Google Maps<input name="maps_url" value="<%= s.maps_url %>"></label>
+      <label class="af">Búsqueda para el mapa<input name="maps_embed_query" value="<%= s.maps_embed_query %>"></label>
+      <label class="af">Instagram<input name="instagram_url" value="<%= s.instagram_url %>"></label>
+      <label class="af">Ficha de Google<input name="google_url" value="<%= s.google_url %>"></label>
+    </div>
+  </section>
+  <section class="acard">
+    <h2>Horario</h2>
+    <div class="hours-edit" data-rows>
+      <% [...s.hours, { days: '', time: '' }].forEach(h => { %>
+        <div class="agrid-f"><input name="hours_days" value="<%= h.days %>" placeholder="Ej. Lunes a viernes" aria-label="Días"><input name="hours_time" value="<%= h.time %>" placeholder="Ej. 10:30–14:30 y 17:30–21:00" aria-label="Horario"></div>
+      <% }) %>
+    </div>
+    <p class="small muted">Deja una fila vacía para borrarla. Guarda para que aparezca una fila nueva.</p>
+  </section>
+  <section class="acard">
+    <h2>Tienda online</h2>
+    <label class="acheck"><input type="checkbox" name="shop_enabled" value="1" <%= s.shop_enabled ? 'checked' : '' %>> <span>Tienda online activa <small class="muted">(desmárcalo para pausar las ventas, p. ej. en vacaciones)</small></span></label>
+    <label class="af">Aviso en la barra superior <small>Déjalo vacío para no mostrar nada</small><input name="announcement" value="<%= s.announcement %>"></label>
+    <h3>Envíos</h3>
+    <div class="agrid-f">
+      <label class="af">Envío gratis a partir de (€)<input name="free_shipping_threshold_cents" inputmode="decimal" value="<%= centsToInput(s.free_shipping_threshold_cents) %>"></label>
+      <label class="af">Coste de envío por debajo (€)<input name="shipping_fee_cents" inputmode="decimal" value="<%= centsToInput(s.shipping_fee_cents) %>"></label>
+      <label class="af">Códigos postales admitidos <small>Prefijos separados por comas (28 = Comunidad de Madrid). Vacío = toda España.</small><input name="delivery_postcode_prefixes" value="<%= s.delivery_postcode_prefixes %>"></label>
+    </div>
+    <label class="af">Información de reparto<textarea name="delivery_info" rows="2"><%= s.delivery_info %></textarea></label>
+    <label class="af">Información de recogida en tienda<textarea name="pickup_info" rows="2"><%= s.pickup_info %></textarea></label>
+    <h3>Formas de pago</h3>
+    <label class="acheck"><input type="checkbox" name="payment_card_enabled" value="1" <%= s.payment_card_enabled ? 'checked' : '' %>> Tarjeta / Apple Pay / Google Pay (Stripe) <% if (!cardAvailable) { %><small class="warn">— no disponible hasta configurar Stripe</small><% } %></label>
+    <label class="acheck"><input type="checkbox" name="payment_store_enabled" value="1" <%= s.payment_store_enabled ? 'checked' : '' %>> Pago en tienda / a la entrega</label>
+    <label class="acheck"><input type="checkbox" name="payment_transfer_enabled" value="1" <%= s.payment_transfer_enabled ? 'checked' : '' %>> Transferencia o Bizum</label>
+    <label class="af">Instrucciones de transferencia / Bizum <small>Incluye IBAN o número de Bizum</small><textarea name="transfer_instructions" rows="2"><%= s.transfer_instructions %></textarea></label>
+  </section>
+  <section class="acard">
+    <h2>Avisos</h2>
+    <label class="af">Email donde recibir avisos de pedidos, reservas y mensajes<input name="notify_email" type="email" value="<%= s.notify_email %>"></label>
+  </section>
+  <section class="acard">
+    <h2>Google (SEO)</h2>
+    <label class="af">Título de la portada en Google<input name="seo_title" value="<%= s.seo_title %>" maxlength="70"></label>
+    <label class="af">Descripción en Google<textarea name="seo_description" rows="2" maxlength="170"><%= s.seo_description %></textarea></label>
+  </section>
+  <div class="asave"><button class="abtn abtn--wine abtn--lg">Guardar ajustes</button></div>
+</form>
+<%- include('_foot') %>

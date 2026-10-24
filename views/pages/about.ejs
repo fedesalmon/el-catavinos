@@ -1,0 +1,26 @@
+<%- include('../partials/head') %>
+<%- include('../partials/page-hero', { image: '/img/site/barricas.webp', title: s.about_title, lead: s.about_text, crumbs: [['Sobre nosotros']] }) %>
+
+<section class="band">
+  <div class="wrap split">
+    <img class="split__img" src="/img/site/brindis-pareja.webp" alt="Brindis con vino rosado" loading="lazy" width="800" height="1200">
+    <div class="split__text prose">
+      <h2 class="h-section">Comprar vino en Las Ventas, Madrid</h2>
+      <% paragraphs(s.about_text_2).forEach(p => { %><p><%= p %></p><% }) %>
+      <div class="btn-row"><a href="/tienda" class="btn btn--wine">Descubre tu vino ideal</a><a href="/contacto" class="btn btn--ghost">Contáctanos</a></div>
+    </div>
+  </div>
+</section>
+
+<section class="band band--stone">
+  <div class="wrap">
+    <h2 class="h-section center">Nuestros valores</h2>
+    <div class="values">
+      <% s.values.forEach((v, i) => { %>
+      <div class="value"><span class="value__n"><%= String(i + 1).padStart(2, '0') %></span><h3><%= v.title %></h3><p><%= v.text %></p></div>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/foot') %>

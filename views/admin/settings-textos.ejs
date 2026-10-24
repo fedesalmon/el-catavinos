@@ -1,0 +1,29 @@
+<%- include('_head', { title: 'Textos de la web' }) %>
+<div class="ahead"><h1>Textos de la web</h1></div>
+<p class="small muted">Separa los párrafos con una línea en blanco. Los textos de la portada (carrusel) se editan en <a href="/admin/portada">Portada</a>.</p>
+<form method="post" class="acards">
+  <input type="hidden" name="_form" value="textos">
+  <section class="acard">
+    <h2>Página «Catas»</h2>
+    <label class="af">Título de cabecera<input name="catas_intro_title" value="<%= s.catas_intro_title %>"></label>
+    <label class="af">Texto de cabecera<textarea name="catas_intro_text" rows="3"><%= s.catas_intro_text %></textarea></label>
+    <label class="af">Título de la sección<input name="catas_detail_title" value="<%= s.catas_detail_title %>"></label>
+    <label class="af">Texto de la sección<textarea name="catas_detail_text" rows="6"><%= s.catas_detail_text %></textarea></label>
+  </section>
+  <section class="acard">
+    <h2>Página «Sobre nosotros»</h2>
+    <label class="af">Título<input name="about_title" value="<%= s.about_title %>"></label>
+    <label class="af">Texto de cabecera<textarea name="about_text" rows="3"><%= s.about_text %></textarea></label>
+    <label class="af">Texto principal<textarea name="about_text_2" rows="7"><%= s.about_text_2 %></textarea></label>
+    <h3>Valores</h3>
+    <% [...s.values, { title: '', text: '' }].forEach(v => { %>
+      <div class="agrid-f agrid-f--13"><input name="value_title" value="<%= v.title %>" placeholder="Título" aria-label="Título del valor"><input name="value_text" value="<%= v.text %>" placeholder="Descripción" aria-label="Descripción del valor"></div>
+    <% }) %>
+  </section>
+  <section class="acard">
+    <h2>Tienda</h2>
+    <label class="af">Texto de introducción<textarea name="shop_intro" rows="3"><%= s.shop_intro %></textarea></label>
+  </section>
+  <div class="asave"><button class="abtn abtn--wine abtn--lg">Guardar textos</button></div>
+</form>
+<%- include('_foot') %>

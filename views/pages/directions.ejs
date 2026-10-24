@@ -1,0 +1,23 @@
+<%- include('../partials/head') %>
+<%- include('../partials/page-hero', { image: '/img/site/botellas.webp', title: 'Cómo llegar', lead: 'Estamos en Ciudad Lineal, junto a la plaza de toros de Las Ventas.', crumbs: [['Cómo llegar']] }) %>
+<section class="band">
+  <div class="wrap directions">
+    <div class="map" data-map="<%= encodeURIComponent(s.maps_embed_query) %>">
+      <button class="map__load" type="button"><svg class="i"><use href="/img/icons.svg#pin"/></svg><span>Mostrar mapa interactivo</span><small>Se cargará Google Maps</small></button>
+    </div>
+    <div class="directions__info">
+      <h2 class="h-card"><%= s.business_name %></h2>
+      <p><%= s.address_line %><br><%= s.address_city %></p>
+      <div class="btn-row">
+        <a class="btn btn--wine" href="<%= s.maps_url %>" target="_blank" rel="noopener">Abrir en Google Maps</a>
+        <a class="btn btn--ghost" href="https://maps.apple.com/?q=<%= encodeURIComponent(s.maps_embed_query) %>" target="_blank" rel="noopener">Apple Maps</a>
+      </div>
+      <ul class="howto">
+        <li><svg class="i"><use href="/img/icons.svg#metro"/></svg><div><strong>Metro</strong>Ventas (L2 y L5), a pocos minutos andando.</div></li>
+        <li><svg class="i"><use href="/img/icons.svg#truck"/></svg><div><strong>Autobús</strong>Líneas con parada en la plaza de toros de Las Ventas.</div></li>
+        <li><svg class="i"><use href="/img/icons.svg#clock"/></svg><div><strong>Horario</strong><% s.hours.forEach(h => { %><%= h.days %>: <%= h.time %><br><% }) %></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+<%- include('../partials/foot') %>

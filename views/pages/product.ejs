@@ -1,0 +1,75 @@
+<%- include('../partials/head', { bodyClass: product.stock > 0 ? 'has-buybar' : '' }) %>
+<script type="application/ld+json"><%- JSON.stringify({
+  '@context': 'https://schema.org', '@type': 'Product', name: product.name,
+  image: product.image ? baseUrl + product.image : undefined,
+  description: product.short_desc || product.description,
+  brand: { '@type': 'Brand', name: s.business_name },
+  offers: { '@type': 'Offer', priceCurrency: 'EUR', price: (product.price_cents / 100).toFixed(2),
+    availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+    url: baseUrl + '/tienda/' + product.slug },
+}).replace(/</g, '\\u003c') %></script>
+
+<section class="band band--tight">
+  <div class="wrap">
+    <nav class="crumbs crumbs--dark" aria-label="Migas de pan"><a href="/">Inicio</a> <span>/</span> <a href="/tienda">Tienda</a><% if (product.category_slug) { %> <span>/</span> <a href="/tienda/categoria/<%= product.category_slug %>"><%= product.category_name %></a><% } %></nav>
+    <% if (!product.active) { %><div class="alert">Este producto está oculto: solo lo ves porque has iniciado sesión como administrador.</div><% } %>
+    <div class="pdp">
+      <div class="pdp__media">
+        <% if (product.image) { %><img src="<%= product.image %>" alt="<%= product.name %>" width="800" height="1000"><% } else { %><span class="pcard__ph pcard__ph--lg"><svg class="i"><use href="/img/icons.svg#bottle"/></svg></span><% } %>
+      </div>
+      <div class="pdp__info">
+        <% if (product.region) { %><p class="eyebrow"><%= product.region %></p><% } %>
+        <h1 class="pdp__title"><%= product.name %></h1>
+        <div class="pdp__tags">
+          <% if (product.vegan) { %><span class="tag tag--green">Vegano</span><% } %>
+          <% if (product.category_name) { %><span class="tag"><%= product.category_name %></span><% } %>
+        </div>
+        <p class="pdp__price price"><%= money(product.price_cents) %><% if (product.compare_cents && product.compare_cents > product.price_cents) { %> <s><%= money(product.compare_cents) %></s><% } %></p>
+        <% if (product.short_desc) { %><p class="lead"><%= product.short_desc %></p><% } %>
+
+        <% if (product.stock > 0) { %>
+        <form action="/carrito/agregar" method="post" class="buy" data-add-to-cart>
+          <input type="hidden" name="product_id" value="<%= product.id %>">
+          <div class="qty" data-qty>
+            <button type="button" data-step="-1" aria-label="Menos"><svg class="i"><use href="/img/icons.svg#minus"/></svg></button>
+            <input type="number" name="qty" value="1" min="1" max="<%= Math.min(product.stock, 99) %>" inputmode="numeric" aria-label="Cantidad">
+            <button type="button" data-step="1" aria-label="Más"><svg class="i"><use href="/img/icons.svg#plus"/></svg></button>
+          </div>
+          <button class="btn btn--wine btn--lg buy__btn"><svg class="i"><use href="/img/icons.svg#bag"/></svg>Añadir al carrito</button>
+        </form>
+        <p class="stock <%= product.stock <= 3 ? 'stock--low' : '' %>"><svg class="i"><use href="/img/icons.svg#check"/></svg><%= product.stock <= 3 ? `¡Solo quedan ${product.stock}!` : 'En stock' %><% if (product.shippable) { %> · Envío en Madrid o recogida en tienda<% } %></p>
+        <% } else { %>
+        <p class="stock stock--out">Agotado temporalmente</p>
+        <a class="btn btn--ghost" href="/contacto">Avísame cuando vuelva</a>
+        <% } %>
+
+        <dl class="specs">
+          <% [['Uva', product.grape], ['Añada', product.vintage], ['Formato', product.volume], ['Región', product.region], ['Maridaje', product.pairing]].filter(x => x[1]).forEach(([k, v]) => { %>
+            <div><dt><%= k %></dt><dd><%= v %></dd></div>
+          <% }) %>
+        </dl>
+        <% if (product.description) { %><div class="prose"><%- markdown(product.description) %></div><% } %>
+        <div class="pdp__help card card--soft">
+          <p><strong>¿Necesitas consejo?</strong> Nuestro enólogo te ayuda a elegir. Llámanos al <a href="tel:<%= s.phone_intl %>"><%= s.phone %></a>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<% if (related.length) { %>
+<section class="band band--light">
+  <div class="wrap">
+    <h2 class="h-section">También te puede gustar</h2>
+    <div class="pgrid pgrid--scroll"><% related.forEach(p => { %><%- include('../partials/product-card', { p }) %><% }) %></div>
+  </div>
+</section>
+<% } %>
+
+<% if (product.stock > 0) { %>
+<div class="buybar" data-buybar>
+  <div><strong><%= product.name %></strong><span class="price"><%= money(product.price_cents) %></span></div>
+  <form action="/carrito/agregar" method="post" data-add-to-cart><input type="hidden" name="product_id" value="<%= product.id %>"><button class="btn btn--wine">Añadir</button></form>
+</div>
+<% } %>
+<%- include('../partials/foot') %>

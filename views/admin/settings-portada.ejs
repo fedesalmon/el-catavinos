@@ -1,0 +1,34 @@
+<%- include('_head', { title: 'Portada' }) %>
+<div class="ahead"><h1>Portada</h1><div class="ahead__actions"><a href="/" target="_blank" class="abtn abtn--ghost">Ver portada ↗</a></div></div>
+<form method="post" enctype="multipart/form-data" class="acards">
+  <h2 class="asub">Carrusel principal</h2>
+  <% s.hero_slides.forEach((sl, i) => { %>
+  <section class="acard aslide">
+    <div class="aslide__img"><img src="<%= thumb(sl.image) %>" alt=""><label class="afile afile--sm"><input type="file" name="image_<%= i %>" accept="image/*" data-preview><span>Cambiar foto</span></label></div>
+    <div>
+      <input type="hidden" name="image" value="<%= sl.image %>">
+      <div class="agrid-f">
+        <label class="af">Título<input name="title" value="<%= sl.title %>" required></label>
+        <label class="af">Subtítulo<input name="subtitle" value="<%= sl.subtitle %>"></label>
+      </div>
+      <label class="af">Texto<textarea name="text" rows="2"><%= sl.text %></textarea></label>
+      <div class="agrid-f">
+        <label class="af">Texto del botón<input name="cta_label" value="<%= sl.cta_label %>"></label>
+        <label class="af">Enlace del botón<input name="cta_url" value="<%= sl.cta_url %>" placeholder="/catas"></label>
+      </div>
+      <label class="acheck"><input type="checkbox" name="remove" value="<%= i %>"> Eliminar esta diapositiva</label>
+    </div>
+  </section>
+  <% }) %>
+  <button name="add" value="1" class="abtn abtn--ghost">+ Añadir diapositiva</button>
+  <h2 class="asub">Secciones</h2>
+  <section class="acard">
+    <label class="af">Título de bienvenida<input name="intro_title" value="<%= s.intro_title %>"></label>
+    <label class="af">Texto de bienvenida<textarea name="intro_text" rows="4"><%= s.intro_text %></textarea></label>
+    <label class="af">Título «Catas para grupos»<input name="groups_title" value="<%= s.groups_title %>"></label>
+    <label class="af">Texto «Catas para grupos»<textarea name="groups_text" rows="3"><%= s.groups_text %></textarea></label>
+    <p class="small muted">Los productos de «Selección de la casa» son los marcados como <strong>Destacado</strong> en cada producto.</p>
+  </section>
+  <div class="asave"><button class="abtn abtn--wine abtn--lg">Guardar portada</button></div>
+</form>
+<%- include('_foot') %>

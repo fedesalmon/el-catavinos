@@ -1,0 +1,30 @@
+<%- include('../partials/head') %>
+<article>
+  <header class="post-hero" style="--bg: url('<%= post.image %>')">
+    <div class="wrap narrow">
+      <nav class="crumbs" aria-label="Migas de pan"><a href="/">Inicio</a> <span>/</span> <a href="/blog">Blog</a></nav>
+      <h1><%= post.title %></h1>
+      <time datetime="<%= post.published_at %>"><%= formatDate(post.published_at) %></time>
+    </div>
+  </header>
+  <div class="band">
+    <div class="wrap narrow prose prose--article">
+      <% if (post.excerpt) { %><p class="lead"><%= post.excerpt %></p><% } %>
+      <%- markdown(post.body) %>
+      <div class="post-cta card">
+        <h3>¿Te apetece vivirlo en persona?</h3>
+        <p>Ven a una de nuestras catas con maridaje o descubre nuestra selección en la tienda online.</p>
+        <div class="btn-row"><a class="btn btn--wine" href="/catas">Ver catas</a><a class="btn btn--ghost" href="/tienda">Ir a la tienda</a></div>
+      </div>
+    </div>
+  </div>
+</article>
+<% if (more.length) { %>
+<section class="band band--light">
+  <div class="wrap">
+    <h2 class="h-section">Sigue leyendo</h2>
+    <div class="bgrid"><% more.forEach(post => { %><%- include('../partials/post-card', { post }) %><% }) %></div>
+  </div>
+</section>
+<% } %>
+<%- include('../partials/foot') %>

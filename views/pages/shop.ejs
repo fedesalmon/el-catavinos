@@ -1,0 +1,81 @@
+<%- include('../partials/head') %>
+<%
+  const qs = (over) => {
+    const p = new URLSearchParams();
+    const f = { ...filters, ...over };
+    ['q', 'orden', 'vegano', 'stock', 'max'].forEach(k => { if (f[k]) p.set(k, f[k]); });
+    const str = p.toString();
+    return str ? '?' + str : '';
+  };
+  const base = category ? `/tienda/categoria/${category.slug}` : '/tienda';
+%>
+<section class="shop-head">
+  <div class="wrap">
+    <nav class="crumbs crumbs--dark" aria-label="Migas de pan"><a href="/">Inicio</a> <span>/</span> <% if (category) { %><a href="/tienda">Tienda</a> <span>/</span> <span><%= category.name %></span><% } else { %><span>Tienda</span><% } %></nav>
+    <h1 class="h-page"><%= category ? category.name : 'Tienda online' %></h1>
+    <p class="shop-head__lead"><%= category ? category.description : s.shop_intro %></p>
+    <div class="perks">
+      <span><svg class="i"><use href="/img/icons.svg#truck"/></svg>Envío gratis en Madrid desde <%= money(s.free_shipping_threshold_cents) %></span>
+      <span><svg class="i"><use href="/img/icons.svg#store"/></svg>Recogida en tienda gratis</span>
+      <span><svg class="i"><use href="/img/icons.svg#lock"/></svg>Pago seguro</span>
+    </div>
+  </div>
+</section>
+
+<div class="catbar" role="navigation" aria-label="Categorías">
+  <div class="wrap catbar__in">
+    <a href="/tienda<%= qs({}) %>" class="chip <%= !category ? 'is-on' : '' %>">Todo</a>
+    <% categories.filter(c => c.n > 0).forEach(c => { %>
+      <a href="/tienda/categoria/<%= c.slug %><%= qs({}) %>" class="chip <%= category && category.id === c.id ? 'is-on' : '' %>"><%= c.name %></a>
+    <% }) %>
+  </div>
+</div>
+
+<section class="band band--tight">
+  <div class="wrap">
+    <form class="filters" method="get" action="<%= base %>" data-autosubmit>
+      <label class="filters__search"><svg class="i"><use href="/img/icons.svg#search"/></svg><span class="sr">Buscar</span><input type="search" name="q" value="<%= q %>" placeholder="Buscar vino, uva, región…"></label>
+      <label class="filters__sel"><span class="sr">Ordenar</span>
+        <select name="orden">
+          <option value="destacados" <%= sort === 'destacados' ? 'selected' : '' %>>Destacados</option>
+          <option value="novedades" <%= sort === 'novedades' ? 'selected' : '' %>>Novedades</option>
+          <option value="precio-asc" <%= sort === 'precio-asc' ? 'selected' : '' %>>Precio: menor a mayor</option>
+          <option value="precio-desc" <%= sort === 'precio-desc' ? 'selected' : '' %>>Precio: mayor a menor</option>
+          <option value="nombre" <%= sort === 'nombre' ? 'selected' : '' %>>Nombre A–Z</option>
+        </select>
+      </label>
+      <label class="filters__sel"><span class="sr">Precio máximo</span>
+        <select name="max">
+          <option value="">Precio</option>
+          <% [10, 15, 20, 30, 50].forEach(m => { %><option value="<%= m %>" <%= String(filters.max) === String(m) ? 'selected' : '' %>>Hasta <%= m %> €</option><% }) %>
+        </select>
+      </label>
+      <label class="toggle"><input type="checkbox" name="vegano" value="1" <%= filters.vegano === '1' ? 'checked' : '' %>><span>Solo veganos</span></label>
+      <label class="toggle"><input type="checkbox" name="stock" value="1" <%= filters.stock === '1' ? 'checked' : '' %>><span>En stock</span></label>
+      <noscript><button class="btn btn--sm btn--wine">Filtrar</button></noscript>
+    </form>
+
+    <p class="results muted"><%= products.length %> producto<%= products.length === 1 ? '' : 's' %><% if (q) { %> para «<%= q %>»<% } %></p>
+
+    <% if (!products.length) { %>
+      <div class="empty"><svg class="i"><use href="/img/icons.svg#bottle"/></svg><p>No hemos encontrado productos con esos filtros.</p><a href="/tienda" class="btn btn--ghost">Ver todo</a></div>
+    <% } %>
+    <div class="pgrid">
+      <% products.forEach(p => { %><%- include('../partials/product-card', { p }) %><% }) %>
+    </div>
+  </div>
+</section>
+
+<% if (!category) { %>
+<section class="band band--stone" id="envios">
+  <div class="wrap">
+    <div class="info3">
+      <div><svg class="i"><use href="/img/icons.svg#truck"/></svg><h2 class="h-card">Reparto a domicilio en Madrid</h2><p><%= s.delivery_info %></p></div>
+      <div><svg class="i"><use href="/img/icons.svg#gift"/></svg><h2 class="h-card">Lotes y regalos personalizados</h2><p>Creamos lotes de vino y productos gourmet a tu medida, con presentación cuidada, para regalos y eventos de empresa. <a href="/contacto">Pídenos presupuesto</a>.</p></div>
+      <div><svg class="i"><use href="/img/icons.svg#leaf"/></svg><h2 class="h-card">Vinos veganos</h2><p>Elaborados sin productos de origen animal en la clarificación. <a href="/tienda?vegano=1">Ver vinos veganos</a>.</p></div>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<%- include('../partials/foot') %>

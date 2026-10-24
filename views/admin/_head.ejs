@@ -1,0 +1,47 @@
+<%
+  const menu = [
+    ['inicio', '/admin', 'Inicio', 'store'],
+    ['pedidos', '/admin/pedidos', 'Pedidos', 'bag', counts.orders],
+    ['reservas', '/admin/reservas', 'Reservas', 'users', counts.bookings],
+    ['mensajes', '/admin/mensajes', 'Mensajes', 'mail', counts.messages],
+    ['productos', '/admin/productos', 'Productos', 'bottle'],
+    ['categorias', '/admin/categorias', 'Categorías', 'filter'],
+    ['catas', '/admin/catas', 'Catas', 'glass'],
+    ['blog', '/admin/blog', 'Blog', 'leaf'],
+    ['portada', '/admin/portada', 'Portada', 'star'],
+    ['textos', '/admin/textos', 'Textos de la web', 'cheese'],
+    ['ajustes', '/admin/ajustes', 'Ajustes y tienda', 'truck'],
+    ['legal', '/admin/legal', 'Textos legales', 'lock'],
+    ['cuenta', '/admin/cuenta', 'Mi cuenta', 'users'],
+  ];
+  const isOn = (k) => section === k || (k === 'productos' && section.startsWith('productos'));
+%><!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title><%= typeof title !== 'undefined' ? title + ' · ' : '' %>Panel · <%= s.business_name %></title>
+  <link rel="icon" href="/img/favicon-32.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css?v=1">
+</head>
+<body>
+<header class="atop">
+  <button class="atop__menu" id="amenu" aria-label="Menú" aria-expanded="false"><span></span><span></span><span></span></button>
+  <a href="/admin" class="atop__brand"><img src="/img/site/logo.webp" alt="" width="72" height="40"> Panel</a>
+  <a href="/" target="_blank" class="atop__view">Ver web ↗</a>
+</header>
+<div class="alayout">
+  <nav class="aside" id="aside" aria-label="Panel">
+    <ul>
+      <% menu.forEach(([k, href, label, ic, n]) => { %>
+        <li><a href="<%= href %>" class="<%= isOn(k) ? 'on' : '' %>"><svg class="i"><use href="/img/icons.svg#<%= ic %>"/></svg><span><%= label %></span><% if (n) { %><b class="pill"><%= n %></b><% } %></a></li>
+      <% }) %>
+    </ul>
+    <form method="post" action="/admin/logout" class="aside__out"><span class="muted small"><%= admin.email %></span><button class="abtn abtn--ghost abtn--sm">Cerrar sesión</button></form>
+  </nav>
+  <main class="amain">
+    <% if (flash) { %><div class="aflash" role="status"><svg class="i"><use href="/img/icons.svg#check"/></svg><%= flash %></div><% } %>

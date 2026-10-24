@@ -1,0 +1,63 @@
+<%- include('_head', { title: product.id ? product.name : 'Nuevo producto' }) %>
+<div class="ahead"><h1><%= product.id ? 'Editar producto' : 'Nuevo producto' %></h1>
+  <div class="ahead__actions">
+    <a href="/admin/productos" class="abtn abtn--ghost">← Volver</a>
+    <% if (product.id) { %><a href="/tienda/<%= product.slug %>" target="_blank" class="abtn abtn--ghost">Ver en la web ↗</a><% } %>
+  </div>
+</div>
+<% if (errors.length) { %><div class="aerr"><% errors.forEach(e => { %><div><%= e %></div><% }) %></div><% } %>
+<form method="post" enctype="multipart/form-data" class="aform">
+  <div class="aform__main">
+    <section class="acard">
+      <label class="af">Nombre del producto *<input name="name" required value="<%= product.name || '' %>" placeholder="Ej. Protos Roble"></label>
+      <label class="af">Descripción corta <small>Aparece bajo el precio. 1-2 frases.</small><textarea name="short_desc" rows="2"><%= product.short_desc || '' %></textarea></label>
+      <label class="af">Descripción completa <small>Puedes usar **negrita**, listas con "- " y títulos con "## ".</small><textarea name="description" rows="7"><%= product.description || '' %></textarea></label>
+    </section>
+    <section class="acard">
+      <h2>Ficha técnica</h2>
+      <div class="agrid-f">
+        <label class="af">Región / D.O.<input name="region" value="<%= product.region || '' %>" placeholder="D.O. Ribera del Duero"></label>
+        <label class="af">Uva<input name="grape" value="<%= product.grape || '' %>" placeholder="Tempranillo"></label>
+        <label class="af">Añada<input name="vintage" value="<%= product.vintage || '' %>" placeholder="2022"></label>
+        <label class="af">Formato<input name="volume" value="<%= product.volume || '' %>" placeholder="75 cl"></label>
+      </div>
+      <label class="af">Maridaje<input name="pairing" value="<%= product.pairing || '' %>" placeholder="Carnes rojas, quesos curados"></label>
+    </section>
+  </div>
+  <aside class="aform__side">
+    <section class="acard">
+      <h2>Precio y stock</h2>
+      <div class="agrid-f">
+        <label class="af">Precio (€) *<input name="price" required inputmode="decimal" value="<%= centsToInput(product.price_cents) %>" placeholder="12,50"></label>
+        <label class="af">Precio anterior <small>Para mostrar oferta</small><input name="compare_price" inputmode="decimal" value="<%= centsToInput(product.compare_cents) %>"></label>
+      </div>
+      <label class="af">Unidades en stock<input name="stock" type="number" min="0" value="<%= product.stock ?? 0 %>"></label>
+      <label class="af">Categoría
+        <select name="category_id"><option value="">— Sin categoría —</option><% categories.forEach(c => { %><option value="<%= c.id %>" <%= product.category_id === c.id ? 'selected' : '' %>><%= c.name %></option><% }) %></select>
+      </label>
+    </section>
+    <section class="acard">
+      <h2>Foto</h2>
+      <% if (product.image) { %><img src="<%= thumb(product.image) %>" alt="" class="aimg-prev"><label class="acheck"><input type="checkbox" name="remove_image" value="1"> Quitar foto</label><% } %>
+      <label class="afile"><input type="file" name="image_file" accept="image/*" data-preview><span>📷 <%= product.image ? 'Cambiar foto' : 'Subir foto' %></span></label>
+      <p class="small muted">Desde el móvil puedes hacer la foto directamente. Se optimiza automáticamente.</p>
+    </section>
+    <section class="acard">
+      <h2>Opciones</h2>
+      <label class="acheck"><input type="checkbox" name="active" value="1" <%= product.active ? 'checked' : '' %>> Visible en la tienda</label>
+      <label class="acheck"><input type="checkbox" name="featured" value="1" <%= product.featured ? 'checked' : '' %>> Destacado en portada</label>
+      <label class="acheck"><input type="checkbox" name="vegan" value="1" <%= product.vegan ? 'checked' : '' %>> Vino vegano</label>
+      <label class="acheck"><input type="checkbox" name="shippable" value="1" <%= product.shippable ? 'checked' : '' %>> <span>Requiere envío <small class="muted">(desmarcar en tarjetas regalo y entradas)</small></span></label>
+      <label class="af">Orden <small>Menor = aparece antes</small><input name="sort" type="number" value="<%= product.sort || 0 %>"></label>
+      <% if (product.id) { %><label class="af">URL <small>/tienda/…</small><input name="slug" value="<%= product.slug %>"></label><% } %>
+    </section>
+    <button class="abtn abtn--wine abtn--block abtn--lg">Guardar producto</button>
+  </aside>
+</form>
+<% if (product.id) { %>
+<div class="adanger">
+  <form method="post" action="/admin/productos/<%= product.id %>/duplicar"><button class="abtn abtn--ghost abtn--sm">Duplicar</button></form>
+  <form method="post" action="/admin/productos/<%= product.id %>/eliminar" data-confirm="¿Eliminar este producto definitivamente? Si solo quieres ocultarlo, desmarca «Visible»."><button class="abtn abtn--danger abtn--sm">Eliminar producto</button></form>
+</div>
+<% } %>
+<%- include('_foot') %>

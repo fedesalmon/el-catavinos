@@ -1,0 +1,8 @@
+<article class="bcard">
+  <a href="/blog/<%= post.slug %>" class="bcard__img"><img src="<%= thumb(post.image) %>" alt="" loading="lazy" width="640" height="427"></a>
+  <div class="bcard__body">
+    <time datetime="<%= post.published_at %>"><%= formatDate(post.published_at) %></time>
+    <h3><a href="/blog/<%= post.slug %>"><%= post.title %></a></h3>
+    <p><%= post.excerpt %></p>
+  </div>
+</article>

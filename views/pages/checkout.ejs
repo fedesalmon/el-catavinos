@@ -1,0 +1,70 @@
+<%- include('../partials/head') %>
+<%
+  const ship = (m) => (!cart.needsShipping || m !== 'domicilio') ? 0 : (cart.subtotal_cents >= s.free_shipping_threshold_cents ? 0 : s.shipping_fee_cents);
+  const PAY = { tarjeta: ['Tarjeta, Apple Pay o Google Pay', 'Pago seguro con Stripe.'], tienda: ['Pagar en tienda', 'Pagas al recoger o al recibir el pedido.'], transferencia: ['Transferencia o Bizum', s.transfer_instructions] };
+%>
+<section class="band band--tight">
+  <div class="wrap">
+    <h1 class="h-page">Finalizar compra</h1>
+    <% if (cancelled) { %><div class="alert">El pago se ha cancelado. Tu carrito sigue aquí: puedes intentarlo de nuevo o elegir otro método de pago.</div><% } %>
+    <%- include('../partials/errors', { errors }) %>
+    <form method="post" action="/checkout" class="checkout" data-checkout novalidate>
+      <div class="checkout__main">
+        <fieldset class="card">
+          <legend class="h-card">1. Tus datos</legend>
+          <div class="form">
+            <label class="field field--full">Nombre y apellidos <input name="customer_name" required autocomplete="name" value="<%= form.customer_name || '' %>"></label>
+            <label class="field">Email <input type="email" name="email" required autocomplete="email" value="<%= form.email || '' %>"></label>
+            <label class="field">Teléfono <input type="tel" name="phone" required autocomplete="tel" value="<%= form.phone || '' %>"></label>
+          </div>
+        </fieldset>
+
+        <% if (cart.needsShipping) { %>
+        <fieldset class="card">
+          <legend class="h-card">2. Entrega</legend>
+          <div class="radios">
+            <label class="radio"><input type="radio" name="delivery_method" value="recogida" data-ship="0" <%= form.delivery_method !== 'domicilio' ? 'checked' : '' %>>
+              <span><strong>Recogida en tienda</strong><small><%= s.address_line %> · Gratis</small></span></label>
+            <label class="radio"><input type="radio" name="delivery_method" value="domicilio" data-ship="<%= ship('domicilio') %>" <%= form.delivery_method === 'domicilio' ? 'checked' : '' %>>
+              <span><strong>Envío a domicilio (Madrid)</strong><small><%= ship('domicilio') ? money(ship('domicilio')) + ` · gratis desde ${money(s.free_shipping_threshold_cents)}` : 'Gratis' %></small></span></label>
+          </div>
+          <div class="form address" data-address <%= form.delivery_method === 'domicilio' ? '' : 'hidden' %>>
+            <label class="field field--full">Dirección <input name="address" autocomplete="street-address" value="<%= form.address || '' %>" placeholder="Calle, número, piso"></label>
+            <label class="field">Código postal <input name="postal_code" inputmode="numeric" maxlength="5" autocomplete="postal-code" value="<%= form.postal_code || '' %>"></label>
+            <label class="field">Ciudad <input name="city" autocomplete="address-level2" value="<%= form.city || 'Madrid' %>"></label>
+          </div>
+          <label class="check"><input type="checkbox" name="is_gift" value="1" data-gift <%= form.is_gift ? 'checked' : '' %>> <span>Es un regalo (no incluiremos precios)</span></label>
+          <label class="field field--full" data-giftmsg <%= form.is_gift ? '' : 'hidden' %>>Mensaje para la tarjeta <textarea name="gift_message" rows="2"><%= form.gift_message || '' %></textarea></label>
+        </fieldset>
+        <% } %>
+
+        <fieldset class="card">
+          <legend class="h-card"><%= cart.needsShipping ? '3' : '2' %>. Pago</legend>
+          <% if (!paymentOpts.length) { %><p class="warn">Ahora mismo no hay métodos de pago online disponibles. Llámanos al <%= s.phone %>.</p><% } %>
+          <div class="radios">
+            <% paymentOpts.forEach((m, i) => { %>
+            <label class="radio"><input type="radio" name="payment_method" value="<%= m %>" <%= (form.payment_method ? form.payment_method === m : i === 0) ? 'checked' : '' %>>
+              <span><strong><%= PAY[m][0] %></strong><small><%= PAY[m][1] %></small></span></label>
+            <% }) %>
+          </div>
+          <label class="field field--full">Notas del pedido <span class="opt">(opcional)</span><textarea name="notes" rows="2" placeholder="Horario de entrega preferido, indicaciones…"><%= form.notes || '' %></textarea></label>
+          <label class="check"><input type="checkbox" name="adult" value="1" required> <span>Confirmo que soy mayor de 18 años.</span></label>
+          <label class="check"><input type="checkbox" name="terms" value="1" required> <span>Acepto las <a href="/condiciones-de-venta" target="_blank">condiciones de venta</a> y la <a href="/politica-de-privacidad" target="_blank">política de privacidad</a>.</span></label>
+        </fieldset>
+      </div>
+
+      <aside class="summary card checkout__side">
+        <h2 class="h-card">Tu pedido</h2>
+        <ul class="minilist">
+          <% cart.items.forEach(i => { %><li><span><%= i.qty %> × <%= i.product.name %></span><span><%= money(i.line_cents) %></span></li><% }) %>
+        </ul>
+        <div class="summary__row"><span>Subtotal</span><span><%= money(cart.subtotal_cents) %></span></div>
+        <div class="summary__row"><span>Envío</span><span data-ship-out><%= money(ship(form.delivery_method)) %></span></div>
+        <div class="summary__row summary__total"><span>Total</span><strong data-total-out data-subtotal="<%= cart.subtotal_cents %>"><%= money(cart.subtotal_cents + ship(form.delivery_method)) %></strong></div>
+        <button class="btn btn--wine btn--block btn--lg" <%= paymentOpts.length ? '' : 'disabled' %>><svg class="i"><use href="/img/icons.svg#lock"/></svg>Confirmar pedido</button>
+        <p class="small muted center">IVA incluido</p>
+      </aside>
+    </form>
+  </div>
+</section>
+<%- include('../partials/foot') %>

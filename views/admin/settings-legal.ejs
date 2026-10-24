@@ -1,0 +1,13 @@
+<%- include('_head', { title: 'Textos legales' }) %>
+<div class="ahead"><h1>Textos legales</h1></div>
+<div class="anote">Completa los datos entre [corchetes] (razón social, NIF…) antes de empezar a vender. Si tienes dudas, consulta con tu gestoría.</div>
+<form method="post" class="acards">
+  <% [['legal_notice', 'Aviso legal', '/aviso-legal'], ['privacy_policy', 'Política de privacidad', '/politica-de-privacidad'], ['terms', 'Condiciones de venta', '/condiciones-de-venta'], ['cookies_policy', 'Política de cookies', '/politica-de-cookies']].forEach(([k, label, url]) => { %>
+  <section class="acard">
+    <div class="acard__head"><h2><%= label %></h2><a href="<%= url %>" target="_blank">Ver ↗</a></div>
+    <textarea name="<%= k %>" rows="14" class="mono"><%= s[k] %></textarea>
+  </section>
+  <% }) %>
+  <div class="asave"><button class="abtn abtn--wine abtn--lg">Guardar</button></div>
+</form>
+<%- include('_foot') %>

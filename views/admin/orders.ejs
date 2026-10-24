@@ -1,0 +1,26 @@
+<%- include('_head', { title: 'Pedidos' }) %>
+<div class="ahead"><h1>Pedidos</h1></div>
+<form class="afilters" method="get">
+  <input type="search" name="q" value="<%= q %>" placeholder="Nº de pedido, nombre o email">
+  <select name="estado" onchange="this.form.submit()"><option value="">Todos los estados</option><% Object.entries(STATUS_LABELS).forEach(([k, v]) => { %><option value="<%= k %>" <%= status === k ? 'selected' : '' %>><%= v %></option><% }) %></select>
+  <button class="abtn abtn--ghost">Buscar</button>
+</form>
+<% if (!list.length) { %><p class="muted">No hay pedidos.</p><% } %>
+<div class="atable-wrap">
+<table class="atable">
+  <thead><tr><th>Pedido</th><th>Cliente</th><th>Entrega</th><th>Pago</th><th>Total</th><th>Estado</th></tr></thead>
+  <tbody>
+  <% list.forEach(o => { %>
+    <tr data-href="/admin/pedidos/<%= o.number %>">
+      <td><a href="/admin/pedidos/<%= o.number %>" class="strong"><%= o.number %></a><small class="muted block"><%= formatDateTime(o.created_at) %></small></td>
+      <td data-label="Cliente"><%= o.customer_name %><small class="muted block"><%= o.phone %></small></td>
+      <td data-label="Entrega"><%= DELIVERY_LABELS[o.delivery_method] %></td>
+      <td data-label="Pago"><%= PAYMENT_LABELS[o.payment_method] %></td>
+      <td data-label="Total" class="strong"><%= money(o.total_cents) %></td>
+      <td data-label="Estado"><span class="st st--<%= o.status %>"><%= STATUS_LABELS[o.status] %></span></td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table>
+</div>
+<%- include('_foot') %>

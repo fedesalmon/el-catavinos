@@ -1,0 +1,86 @@
+<%
+  const pageTitle = meta.home ? s.seo_title : (meta.title ? `${meta.title} | ${s.business_name}` : s.seo_title);
+  const pageDesc = meta.description || s.seo_description;
+  const ogImage = baseUrl + (meta.image || '/img/site/hero-rosado.webp');
+  const canonical = baseUrl + (path === '/' ? '/' : path);
+  const nav = [
+    ['/', 'Inicio'], ['/catas', 'Catas'], ['/tienda', 'Tienda'], ['/sobre-nosotros', 'Sobre nosotros'],
+    ['/blog', 'Blog'], ['/contacto', 'Contacto'], ['/como-llegar', 'Cómo llegar'],
+  ];
+  const isActive = (href) => href === '/' ? path === '/' : path.startsWith(href);
+%><!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title><%= pageTitle %></title>
+  <meta name="description" content="<%= pageDesc %>">
+  <% if (meta.noindex) { %><meta name="robots" content="noindex"><% } %>
+  <link rel="canonical" href="<%= canonical %>">
+  <meta property="og:locale" content="es_ES">
+  <meta property="og:type" content="<%= meta.type === 'article' ? 'article' : 'website' %>">
+  <meta property="og:site_name" content="<%= s.business_name %>">
+  <meta property="og:title" content="<%= pageTitle %>">
+  <meta property="og:description" content="<%= pageDesc %>">
+  <meta property="og:url" content="<%= canonical %>">
+  <meta property="og:image" content="<%= ogImage %>">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#8e4041">
+  <link rel="icon" href="/img/favicon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/site.css?v=1">
+  <script type="application/ld+json"><%- JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': ['WineShop', 'LocalBusiness'],
+    name: s.business_name,
+    url: baseUrl + '/',
+    image: baseUrl + '/img/site/hero-rosado.webp',
+    logo: baseUrl + '/img/site/logo-square.png',
+    telephone: s.phone_intl,
+    email: s.email,
+    address: { '@type': 'PostalAddress', streetAddress: s.address_line, addressLocality: 'Madrid', postalCode: '28027', addressCountry: 'ES' },
+    sameAs: [s.instagram_url].filter(Boolean),
+  }).replace(/</g, '\\u003c') %></script>
+</head>
+<body class="<%= typeof bodyClass !== 'undefined' ? bodyClass : '' %>">
+<a class="skip" href="#main">Saltar al contenido</a>
+
+<div class="topbar">
+  <div class="wrap topbar__in">
+    <a href="tel:<%= s.phone_intl %>" class="topbar__item"><svg class="i" aria-hidden="true"><use href="/img/icons.svg#phone"/></svg><%= s.phone %></a>
+    <% if (s.announcement) { %><span class="topbar__item topbar__note"><%= s.announcement %></span><% } %>
+    <a href="<%= s.maps_url %>" target="_blank" rel="noopener" class="topbar__item topbar__addr"><svg class="i" aria-hidden="true"><use href="/img/icons.svg#pin"/></svg><%= s.address_line %>, 28027 Madrid</a>
+  </div>
+</div>
+
+<header class="header" id="header">
+  <div class="wrap header__in">
+    <a href="/" class="logo" aria-label="<%= s.business_name %> — Inicio"><img src="/img/site/logo.webp" alt="<%= s.business_name %>" width="240" height="133"></a>
+    <nav class="nav" id="nav" aria-label="Principal">
+      <ul>
+        <% nav.forEach(([href, label]) => { %>
+          <li><a href="<%= href %>" <% if (isActive(href)) { %>aria-current="page"<% } %>><%= label %></a></li>
+        <% }) %>
+      </ul>
+      <div class="nav__extra">
+        <a class="btn btn--wine btn--block" href="/catas#reservar">Reserva tu cata</a>
+        <a class="nav__contact" href="tel:<%= s.phone_intl %>"><svg class="i"><use href="/img/icons.svg#phone"/></svg><%= s.phone %></a>
+        <p class="nav__hours"><% s.hours.forEach(h => { %><span><strong><%= h.days %>:</strong> <%= h.time %></span><% }) %></p>
+      </div>
+    </nav>
+    <div class="header__actions">
+      <a href="/tienda" class="iconbtn hide-sm" aria-label="Buscar en la tienda"><svg class="i"><use href="/img/icons.svg#search"/></svg></a>
+      <a href="/carrito" class="iconbtn cartbtn" data-cart-open aria-label="Carrito (<%= cartCount %> productos)">
+        <svg class="i"><use href="/img/icons.svg#bag"/></svg>
+        <span class="cartbtn__n" data-cart-count <% if (!cartCount) { %>hidden<% } %>><%= cartCount %></span>
+      </a>
+      <button class="iconbtn burger" id="burger" aria-label="Abrir menú" aria-expanded="false" aria-controls="nav"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<div class="nav-scrim" id="navScrim" hidden></div>
+
+<main id="main">

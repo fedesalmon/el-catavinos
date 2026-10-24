@@ -1,0 +1,28 @@
+<%- include('../partials/head') %>
+<section class="band band--tight">
+  <div class="wrap narrow">
+    <% if (order.status === 'pendiente_pago' && order.payment_method === 'tarjeta') { %>
+      <div class="alert">Estamos esperando la confirmación del pago. Si ya has pagado, recarga esta página en unos segundos.</div>
+    <% } else if (order.status === 'cancelado') { %>
+      <div class="alert alert--error">Este pedido está cancelado.</div>
+    <% } else { %>
+      <div class="success success--big"><svg class="i"><use href="/img/icons.svg#check"/></svg><h1 class="h-page">¡Gracias, <%= order.customer_name.split(' ')[0] %>!</h1><p>Hemos recibido tu pedido <strong><%= order.number %></strong>. Te hemos enviado un email a <%= order.email %>.</p></div>
+    <% } %>
+    <div class="card">
+      <h2 class="h-card">Pedido <%= order.number %></h2>
+      <p class="muted small"><%= formatDateTime(order.created_at) %> · <span class="badge badge--<%= order.status %>"><%= STATUS_LABELS[order.status] %></span></p>
+      <ul class="minilist">
+        <% order.items.forEach(i => { %><li><span><%= i.qty %> × <%= i.name %></span><span><%= money(i.qty * i.price_cents) %></span></li><% }) %>
+      </ul>
+      <div class="summary__row"><span>Subtotal</span><span><%= money(order.subtotal_cents) %></span></div>
+      <div class="summary__row"><span>Envío</span><span><%= money(order.shipping_cents) %></span></div>
+      <div class="summary__row summary__total"><span>Total</span><strong><%= money(order.total_cents) %></strong></div>
+      <hr>
+      <p><strong>Entrega:</strong> <%= DELIVERY_LABELS[order.delivery_method] %><% if (order.delivery_method === 'domicilio') { %> — <%= order.address %>, <%= order.postal_code %> <%= order.city %><% } else if (order.delivery_method === 'recogida') { %> — <%= s.address_line %>. <%= s.pickup_info %><% } %></p>
+      <p><strong>Pago:</strong> <%= PAYMENT_LABELS[order.payment_method] %></p>
+      <% if (order.payment_method === 'transferencia' && order.status === 'pendiente_pago') { %><div class="alert"><%= s.transfer_instructions %> Referencia: <strong><%= order.number %></strong> · Importe: <strong><%= money(order.total_cents) %></strong></div><% } %>
+    </div>
+    <div class="btn-row center"><a href="/tienda" class="btn btn--ghost">Seguir comprando</a><a href="/catas" class="btn btn--wine">Descubre nuestras catas</a></div>
+  </div>
+</section>
+<%- include('../partials/foot') %>

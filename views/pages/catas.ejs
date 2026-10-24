@@ -1,0 +1,94 @@
+<%- include('../partials/head') %>
+<%- include('../partials/page-hero', { image: '/img/site/grupo-cata.webp', title: s.catas_intro_title, lead: s.catas_intro_text, crumbs: [['Catas']], cta: ['Reservar cata', '#reservar'] }) %>
+
+<section class="band">
+  <div class="wrap split">
+    <div class="split__text prose">
+      <h2 class="h-section"><%= s.catas_detail_title %></h2>
+      <% paragraphs(s.catas_detail_text).forEach(p => { %><p><%= p %></p><% }) %>
+      <ul class="checks">
+        <li>Dirigidas por enólogo</li><li>Maridaje gourmet incluido</li><li>Grupos reducidos de 6 a 10 personas</li><li>Ideal para amigos, parejas, familias y empresas</li>
+      </ul>
+    </div>
+    <img class="split__img" src="/img/site/mesa-cata.webp" alt="Participantes durante una cata de vino" loading="lazy" width="800" height="533">
+  </div>
+</section>
+
+<section class="band band--stone">
+  <div class="wrap">
+    <h2 class="h-section center caps">Nuestras catas</h2>
+    <div class="tlist">
+      <% tastings.forEach((t, i) => { %>
+      <article class="tdetail" id="<%= t.slug %>">
+        <img src="<%= t.image ? thumb(t.image) : '/img/site/copas-fila-sm.webp' %>" alt="" loading="lazy" width="640" height="480">
+        <div class="tdetail__body">
+          <p class="eyebrow"><%= t.subtitle %></p>
+          <h3><%= t.name %></h3>
+          <% paragraphs(t.description).forEach(p => { %><p><%= p %></p><% }) %>
+          <dl class="tdetail__facts">
+            <div><dt><svg class="i"><use href="/img/icons.svg#clock"/></svg>Duración</dt><dd><%= t.duration %></dd></div>
+            <div><dt><svg class="i"><use href="/img/icons.svg#users"/></svg>Grupo</dt><dd><%= t.min_people %> a <%= t.max_people %> personas</dd></div>
+            <div><dt><svg class="i"><use href="/img/icons.svg#glass"/></svg>Precio</dt><dd><%= t.price_text %></dd></div>
+          </dl>
+          <a href="#reservar" class="btn btn--wine" data-pick-tasting="<%= t.id %>">Reservar esta cata</a>
+        </div>
+      </article>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<% if (events.length) { %>
+<section class="band">
+  <div class="wrap">
+    <div class="band__head">
+      <h2 class="h-section">Catas abiertas y tarjetas regalo</h2>
+      <a class="link-arrow" href="/tienda/categoria/catas-y-experiencias">Ver en la tienda</a>
+    </div>
+    <p class="muted">¿No tienes grupo? Apúntate a una cata abierta o regala la experiencia. Se compran online como cualquier producto.</p>
+    <div class="pgrid">
+      <% events.forEach(p => { %><%- include('../partials/product-card', { p }) %><% }) %>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<section class="band band--dark" id="reservar">
+  <div class="wrap booking">
+    <div class="booking__intro">
+      <h2 class="h-section">Disfruta una cata privada</h2>
+      <p>Cuéntanos qué cata te interesa, la fecha y cuántos seréis. Te confirmaremos disponibilidad por teléfono o email en menos de 24 h laborables.</p>
+      <p>¿Prefieres hablar con nosotros?<br><a href="tel:<%= s.phone_intl %>" class="big-link"><%= s.phone %></a></p>
+    </div>
+    <div class="booking__form card">
+      <% if (sent) { %>
+        <div class="success"><svg class="i"><use href="/img/icons.svg#check"/></svg><h3>¡Solicitud enviada!</h3><p>Gracias. Te contactaremos muy pronto para confirmar tu cata.</p><a href="/catas" class="btn btn--ghost">Hacer otra reserva</a></div>
+      <% } else { %>
+      <%- include('../partials/errors', { errors }) %>
+      <form method="post" action="/catas/reservar" class="form" novalidate>
+        <div class="hp" aria-hidden="true"><label>Web <input name="website" tabindex="-1" autocomplete="off"></label></div>
+        <label class="field field--full">Cata
+          <select name="tasting_id" id="tastingSelect">
+            <% tastings.forEach(t => { %><option value="<%= t.id %>" <%= form.tasting_id == t.id ? 'selected' : '' %>><%= t.name %> (<%= t.subtitle.replace(/^Nuestra cata /i, "") %>)</option><% }) %>
+          </select>
+        </label>
+        <label class="field">Fecha <input type="date" name="date" required value="<%= form.date || '' %>" min="<%= new Date().toISOString().slice(0, 10) %>"></label>
+        <label class="field">Hora preferida
+          <select name="time">
+            <% ['Mañana', 'Tarde', 'Noche', 'Indiferente'].forEach(t => { %><option <%= form.time === t ? 'selected' : '' %>><%= t %></option><% }) %>
+          </select>
+        </label>
+        <label class="field">Personas <input type="number" name="people" min="1" max="60" value="<%= form.people || 6 %>" inputmode="numeric"></label>
+        <label class="field">Nombre <input name="name" required autocomplete="name" value="<%= form.name || '' %>"></label>
+        <label class="field">Email <input type="email" name="email" required autocomplete="email" value="<%= form.email || '' %>"></label>
+        <label class="field">Teléfono <input type="tel" name="phone" required autocomplete="tel" value="<%= form.phone || '' %>"></label>
+        <label class="field field--full">Comentarios <textarea name="notes" rows="3" placeholder="Alergias, ocasión especial, preferencias de vino…"><%= form.notes || '' %></textarea></label>
+        <p class="small muted field--full">Al enviar aceptas nuestra <a href="/politica-de-privacidad">política de privacidad</a>.</p>
+        <button class="btn btn--wine btn--block btn--lg field--full">Solicitar reserva</button>
+      </form>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/foot') %>

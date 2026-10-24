@@ -1,0 +1,9 @@
+<%- include('../partials/head') %>
+<section class="band">
+  <div class="wrap narrow center">
+    <h1 class="h-page"><%= typeof error !== 'undefined' ? 'Algo ha fallado' : 'Página no encontrada' %></h1>
+    <p class="lead"><%= typeof error !== 'undefined' ? 'Ha ocurrido un error inesperado. Inténtalo de nuevo o llámanos.' : 'Parece que esta copa está vacía. La página que buscas no existe o se ha movido.' %></p>
+    <div class="btn-row center"><a href="/" class="btn btn--wine">Volver al inicio</a><a href="/tienda" class="btn btn--ghost">Ir a la tienda</a></div>
+  </div>
+</section>
+<%- include('../partials/foot') %>

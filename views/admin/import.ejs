@@ -1,0 +1,32 @@
+<%- include('_head', { title: 'Importar productos' }) %>
+<div class="ahead"><h1>Importar productos</h1><div class="ahead__actions"><a href="/admin/productos" class="abtn abtn--ghost">← Productos</a></div></div>
+<% if (result) { %>
+  <div class="<%= result.errors.length ? 'anote' : 'aflash' %>">
+    <strong><%= result.created %> creados · <%= result.updated %> actualizados</strong>
+    <% if (result.errors.length) { %><ul><% result.errors.forEach(e => { %><li><%= e %></li><% }) %></ul><% } %>
+  </div>
+<% } %>
+<div class="agrid2">
+  <section class="acard">
+    <h2>1. Prepara el archivo</h2>
+    <p>Usa Excel, Numbers o Google Sheets y guárdalo como <strong>CSV</strong>. La primera fila debe tener estos nombres de columna (solo <em>nombre</em> y <em>precio</em> son obligatorias):</p>
+    <p><code class="wrapcode"><%= cols.join(' ; ') %></code></p>
+    <ul class="small">
+      <li><strong>categoria</strong>: nombre o código de la categoría (ej. <em>tintos</em>, <em>Vinos blancos</em>).</li>
+      <li><strong>precio</strong>: en euros, con coma o punto (12,50).</li>
+      <li><strong>vegano / destacado / activo</strong>: «si» o «no».</li>
+      <li><strong>imagen_url</strong>: enlace a una foto; se descarga y optimiza automáticamente. Usa solo fotos que tengas derecho a usar (por ejemplo, las que facilitan las bodegas o tu distribuidor).</li>
+      <li>Si ya existe un producto con el mismo nombre, se <strong>actualiza</strong> (precio, stock…).</li>
+    </ul>
+    <p><a href="/admin/productos-plantilla.csv" class="abtn abtn--ghost abtn--sm">Descargar plantilla</a> <a href="/admin/productos-exportar.csv" class="abtn abtn--ghost abtn--sm">Exportar catálogo actual</a></p>
+  </section>
+  <section class="acard">
+    <h2>2. Súbelo</h2>
+    <form method="post" enctype="multipart/form-data" data-busy>
+      <label class="afile"><input type="file" name="csv" accept=".csv,text/csv" required><span>📄 Elegir archivo CSV</span></label>
+      <button class="abtn abtn--wine abtn--block">Importar</button>
+      <p class="small muted">Si hay muchas fotos puede tardar un minuto.</p>
+    </form>
+  </section>
+</div>
+<%- include('_foot') %>

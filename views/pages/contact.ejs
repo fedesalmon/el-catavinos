@@ -1,0 +1,36 @@
+<%- include('../partials/head') %>
+<%- include('../partials/page-hero', { image: '/img/site/servir-tinto.webp', title: 'Contacto', lead: 'Te invitamos a visitar El Catavinos, un espacio pensado para disfrutar del vino sin prisas, descubrir nuevos sabores y dejarte asesorar para encontrar justo lo que buscas.', crumbs: [['Contacto']] }) %>
+<section class="band" id="form">
+  <div class="wrap contact">
+    <div class="contact__cards">
+      <a class="ccard" href="tel:<%= s.phone_intl %>"><svg class="i"><use href="/img/icons.svg#phone"/></svg><span><strong>Teléfono</strong><%= s.phone %></span></a>
+      <a class="ccard" href="mailto:<%= s.email %>"><svg class="i"><use href="/img/icons.svg#mail"/></svg><span><strong>Email</strong><%= s.email %></span></a>
+      <% if (s.whatsapp) { %><a class="ccard" href="https://wa.me/<%= s.whatsapp.replace(/\D/g, '') %>" target="_blank" rel="noopener"><svg class="i"><use href="/img/icons.svg#whatsapp"/></svg><span><strong>WhatsApp</strong><%= s.whatsapp %></span></a><% } %>
+      <a class="ccard" href="/como-llegar"><svg class="i"><use href="/img/icons.svg#pin"/></svg><span><strong>Dirección</strong><%= s.address_line %>, <%= s.address_city %></span></a>
+      <div class="ccard"><svg class="i"><use href="/img/icons.svg#clock"/></svg><span><strong>Horario</strong><% s.hours.forEach(h => { %><%= h.days %>: <%= h.time %><br><% }) %></span></div>
+    </div>
+    <div class="card">
+      <h2 class="h-card">Escríbenos</h2>
+      <% if (sent) { %>
+        <div class="success"><svg class="i"><use href="/img/icons.svg#check"/></svg><h3>¡Mensaje enviado!</h3><p>Gracias por escribirnos. Te responderemos lo antes posible.</p></div>
+      <% } else { %>
+      <%- include('../partials/errors', { errors }) %>
+      <form method="post" action="/contacto" class="form" novalidate>
+        <div class="hp" aria-hidden="true"><label>Web <input name="website" tabindex="-1" autocomplete="off"></label></div>
+        <label class="field">Nombre <input name="name" required autocomplete="name" value="<%= form.name || '' %>"></label>
+        <label class="field">Email <input type="email" name="email" required autocomplete="email" value="<%= form.email || '' %>"></label>
+        <label class="field">Teléfono <span class="opt">(opcional)</span><input type="tel" name="phone" autocomplete="tel" value="<%= form.phone || '' %>"></label>
+        <label class="field">Asunto
+          <select name="subject">
+            <% ['Consulta general', 'Catas y eventos', 'Lotes y regalos de empresa', 'Pedido online', 'Otro'].forEach(o => { %><option <%= form.subject === o ? 'selected' : '' %>><%= o %></option><% }) %>
+          </select>
+        </label>
+        <label class="field field--full">Mensaje <textarea name="body" rows="5" required><%= form.body || '' %></textarea></label>
+        <label class="check field--full"><input type="checkbox" name="privacy" value="1" required> <span>He leído y acepto la <a href="/politica-de-privacidad">política de privacidad</a>.</span></label>
+        <button class="btn btn--wine btn--lg field--full">Enviar mensaje</button>
+      </form>
+      <% } %>
+    </div>
+  </div>
+</section>
+<%- include('../partials/foot') %>

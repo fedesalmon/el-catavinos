@@ -1,0 +1,27 @@
+<%- include('_head', { title: 'Reservas' }) %>
+<div class="ahead"><h1>Reservas de catas</h1></div>
+<div class="atabs">
+  <a href="/admin/reservas" class="<%= !status ? 'on' : '' %>">Todas</a>
+  <% Object.entries(BOOKING_STATUS).forEach(([k, v]) => { %><a href="/admin/reservas?estado=<%= k %>" class="<%= status === k ? 'on' : '' %>"><%= v %></a><% }) %>
+</div>
+<% if (!list.length) { %><p class="muted">No hay reservas.</p><% } %>
+<div class="acards">
+  <% list.forEach(b => { %>
+  <form method="post" action="/admin/reservas/<%= b.id %>" class="acard abook" id="r<%= b.id %>">
+    <div class="abook__date"><strong><%= formatDate(b.date, { day: 'numeric' }) %></strong><span><%= formatDate(b.date, { month: 'short' }) %></span><small><%= b.time %></small></div>
+    <div class="abook__body">
+      <h3><%= b.name %> · <%= b.people %> personas <span class="st st--b-<%= b.status %>"><%= BOOKING_STATUS[b.status] %></span></h3>
+      <p class="small"><strong><%= b.tasting_name %></strong> · <a href="tel:<%= b.phone %>"><%= b.phone %></a> · <a href="mailto:<%= b.email %>?subject=Tu reserva de cata en El Catavinos"><%= b.email %></a></p>
+      <% if (b.notes) { %><p class="small">«<%= b.notes %>»</p><% } %>
+      <p class="small muted">Recibida el <%= formatDateTime(b.created_at) %></p>
+      <div class="row-actions">
+        <select name="status"><% Object.entries(BOOKING_STATUS).forEach(([k, v]) => { %><option value="<%= k %>" <%= b.status === k ? 'selected' : '' %>><%= v %></option><% }) %></select>
+        <input name="admin_notes" value="<%= b.admin_notes %>" placeholder="Nota interna (ej. confirmada por teléfono)">
+        <button class="abtn abtn--wine abtn--sm">Guardar</button>
+        <button name="delete" value="1" class="abtn abtn--danger abtn--sm" data-confirm="¿Eliminar esta reserva?">Eliminar</button>
+      </div>
+    </div>
+  </form>
+  <% }) %>
+</div>
+<%- include('_foot') %>

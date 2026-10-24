@@ -1,0 +1,18 @@
+<%- include('_head', { title: 'Mensajes' }) %>
+<div class="ahead"><h1>Mensajes del formulario</h1></div>
+<% if (!list.length) { %><p class="muted">No hay mensajes.</p><% } %>
+<div class="acards">
+  <% list.forEach(m => { %>
+  <article class="acard amsg <%= m.is_read ? 'is-read' : '' %>" id="m<%= m.id %>">
+    <div class="acard__head"><h3><%= m.name %> <small class="muted">· <%= m.subject %></small></h3><small class="muted"><%= formatDateTime(m.created_at) %></small></div>
+    <p class="small"><a href="mailto:<%= m.email %>?subject=Re: <%= encodeURIComponent(m.subject) %>"><%= m.email %></a><%= m.phone ? ' · ' : '' %><% if (m.phone) { %><a href="tel:<%= m.phone %>"><%= m.phone %></a><% } %></p>
+    <p class="pre"><%= m.body %></p>
+    <form method="post" action="/admin/mensajes/<%= m.id %>" class="row-actions">
+      <a class="abtn abtn--wine abtn--sm" href="mailto:<%= m.email %>?subject=Re: <%= encodeURIComponent(m.subject) %>">Responder</a>
+      <button name="read" value="<%= m.is_read ? '0' : '1' %>" class="abtn abtn--ghost abtn--sm"><%= m.is_read ? 'Marcar como no leído' : 'Marcar como leído' %></button>
+      <button name="delete" value="1" class="abtn abtn--danger abtn--sm" data-confirm="¿Eliminar este mensaje?">Eliminar</button>
+    </form>
+  </article>
+  <% }) %>
+</div>
+<%- include('_foot') %>

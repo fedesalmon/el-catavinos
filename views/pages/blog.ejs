@@ -1,0 +1,11 @@
+<%- include('../partials/head') %>
+<%- include('../partials/page-hero', { image: '/img/site/vino-derramado.webp', title: 'Descubre el placer del vino', lead: 'Artículos sobre cómo catar un vino, las diferencias entre uvas y denominaciones de origen, vinos veganos y consejos para organizar tu propia cata en casa.', crumbs: [['Blog']] }) %>
+<section class="band">
+  <div class="wrap">
+    <% if (!posts.length) { %><p class="center muted">Pronto publicaremos nuevos artículos.</p><% } %>
+    <div class="bgrid">
+      <% posts.forEach(post => { %><%- include('../partials/post-card', { post }) %><% }) %>
+    </div>
+  </div>
+</section>
+<%- include('../partials/foot') %>

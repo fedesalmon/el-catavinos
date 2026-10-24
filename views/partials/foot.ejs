@@ -1,0 +1,67 @@
+</main>
+
+<section class="info-band" aria-label="Información de contacto">
+  <div class="wrap info-band__grid">
+    <div class="info-band__col">
+      <h3>Dirección</h3>
+      <p><strong><%= s.business_name %></strong><br><%= s.address_line %><br><%= s.address_city %></p>
+      <a class="link-arrow" href="/como-llegar">Cómo llegar</a>
+    </div>
+    <div class="info-band__col">
+      <h3>Horario</h3>
+      <dl class="hours"><% s.hours.forEach(h => { %><div><dt><%= h.days %></dt><dd><%= h.time %></dd></div><% }) %></dl>
+    </div>
+    <div class="info-band__col">
+      <h3>Contacto</h3>
+      <p>Llámanos al <a href="tel:<%= s.phone_intl %>"><%= s.phone %></a><br>
+      Email: <a href="mailto:<%= s.email %>"><%= s.email %></a></p>
+      <div class="social">
+        <% if (s.instagram_url) { %><a href="<%= s.instagram_url %>" target="_blank" rel="noopener" aria-label="Instagram"><svg class="i"><use href="/img/icons.svg#instagram"/></svg></a><% } %>
+        <% if (s.google_url) { %><a href="<%= s.google_url %>" target="_blank" rel="noopener" aria-label="Google"><svg class="i"><use href="/img/icons.svg#google"/></svg></a><% } %>
+        <% if (s.whatsapp) { %><a href="https://wa.me/<%= s.whatsapp.replace(/\D/g, '') %>" target="_blank" rel="noopener" aria-label="WhatsApp"><svg class="i"><use href="/img/icons.svg#whatsapp"/></svg></a><% } %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="wrap footer__in">
+    <img src="/img/site/logo.webp" alt="" width="120" height="66" class="footer__logo" loading="lazy">
+    <nav class="footer__links" aria-label="Legal">
+      <a href="/aviso-legal">Aviso legal</a>
+      <a href="/politica-de-privacidad">Política de privacidad</a>
+      <a href="/politica-de-cookies">Cookies</a>
+      <a href="/condiciones-de-venta">Condiciones de venta</a>
+    </nav>
+    <p class="footer__copy">© <%= new Date().getFullYear() %> <%= s.business_name %> · Venta de alcohol solo a mayores de 18 años</p>
+  </div>
+</footer>
+
+<nav class="actionbar" aria-label="Accesos rápidos">
+  <a href="tel:<%= s.phone_intl %>"><svg class="i"><use href="/img/icons.svg#phone"/></svg>Llamar</a>
+  <a href="<%= s.maps_url %>" target="_blank" rel="noopener"><svg class="i"><use href="/img/icons.svg#pin"/></svg>Cómo llegar</a>
+  <a href="/catas#reservar"><svg class="i"><use href="/img/icons.svg#glass"/></svg>Reservar</a>
+  <a href="/tienda"><svg class="i"><use href="/img/icons.svg#store"/></svg>Tienda</a>
+</nav>
+
+<aside class="drawer" id="cartDrawer" aria-label="Carrito" aria-hidden="true">
+  <div class="drawer__panel" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="drawer__head">
+      <h2 id="drawerTitle">Tu carrito</h2>
+      <button class="iconbtn" data-cart-close aria-label="Cerrar carrito"><svg class="i"><use href="/img/icons.svg#close"/></svg></button>
+    </div>
+    <div class="drawer__body" data-cart-body><p class="muted">Cargando…</p></div>
+    <div class="drawer__foot" data-cart-foot hidden>
+      <div class="drawer__total"><span>Subtotal</span><strong data-cart-subtotal></strong></div>
+      <p class="small muted" data-cart-shipnote></p>
+      <a href="/checkout" class="btn btn--wine btn--block">Finalizar compra</a>
+      <a href="/carrito" class="btn btn--ghost btn--block">Ver carrito</a>
+    </div>
+  </div>
+</aside>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>window.CV = { freeShip: <%= s.free_shipping_threshold_cents %> };</script>
+<script src="/js/site.js?v=1" defer></script>
+</body>
+</html>

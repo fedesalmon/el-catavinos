@@ -1,0 +1,8 @@
+<section class="phero" style="--bg: url('<%= image %>')">
+  <div class="wrap phero__in">
+    <% if (typeof crumbs !== 'undefined') { %><nav class="crumbs" aria-label="Migas de pan"><a href="/">Inicio</a><% crumbs.forEach(c => { %> <span aria-hidden="true">/</span> <% if (c[1]) { %><a href="<%= c[1] %>"><%= c[0] %></a><% } else { %><span><%= c[0] %></span><% } %><% }) %></nav><% } %>
+    <h1><%= title %></h1>
+    <% if (typeof lead !== 'undefined' && lead) { %><p class="phero__lead"><%= lead %></p><% } %>
+    <% if (typeof cta !== 'undefined') { %><a class="btn btn--wine" href="<%= cta[1] %>"><%= cta[0] %></a><% } %>
+  </div>
+</section>

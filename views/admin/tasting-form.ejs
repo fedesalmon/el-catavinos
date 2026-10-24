@@ -1,0 +1,31 @@
+<%- include('_head', { title: t.id ? t.name : 'Nueva cata' }) %>
+<div class="ahead"><h1><%= t.id ? 'Editar cata' : 'Nueva cata' %></h1><div class="ahead__actions"><a href="/admin/catas" class="abtn abtn--ghost">← Catas</a></div></div>
+<form method="post" enctype="multipart/form-data" class="aform">
+  <div class="aform__main">
+    <section class="acard">
+      <div class="agrid-f">
+        <label class="af">Nombre<input name="name" required value="<%= t.name || '' %>" placeholder="Cata Garnacha"></label>
+        <label class="af">Subtítulo<input name="subtitle" value="<%= t.subtitle || '' %>" placeholder="Nuestra cata básica"></label>
+      </div>
+      <label class="af">Descripción <small>Separa párrafos con una línea en blanco.</small><textarea name="description" rows="8"><%= t.description || '' %></textarea></label>
+      <div class="agrid-f">
+        <label class="af">Duración<input name="duration" value="<%= t.duration || '' %>" placeholder="Aprox. 2 h 30 min"></label>
+        <label class="af">Precio (texto)<input name="price_text" value="<%= t.price_text || '' %>" placeholder="Desde 22 € por persona"></label>
+        <label class="af">Mín. personas<input name="min_people" type="number" value="<%= t.min_people %>"></label>
+        <label class="af">Máx. personas<input name="max_people" type="number" value="<%= t.max_people %>"></label>
+      </div>
+    </section>
+  </div>
+  <aside class="aform__side">
+    <section class="acard">
+      <h2>Foto</h2>
+      <% if (t.image) { %><img src="<%= thumb(t.image) %>" alt="" class="aimg-prev"><% } %>
+      <label class="afile"><input type="file" name="image_file" accept="image/*" data-preview><span>📷 Subir foto</span></label>
+      <label class="acheck"><input type="checkbox" name="active" value="1" <%= t.active ? 'checked' : '' %>> Visible en la web</label>
+      <label class="af">Orden<input name="sort" type="number" value="<%= t.sort || 0 %>"></label>
+    </section>
+    <button class="abtn abtn--wine abtn--block abtn--lg">Guardar</button>
+    <% if (t.id) { %><button name="delete" value="1" class="abtn abtn--danger abtn--block" data-confirm="¿Eliminar esta cata?" formnovalidate>Eliminar cata</button><% } %>
+  </aside>
+</form>
+<%- include('_foot') %>

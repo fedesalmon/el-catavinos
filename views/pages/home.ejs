@@ -1,0 +1,111 @@
+<%- include('../partials/head') %>
+
+<section class="hero" aria-roledescription="carrusel" aria-label="Destacados" data-slider>
+  <div class="hero__track">
+    <% s.hero_slides.forEach((sl, i) => { %>
+    <div class="hero__slide <%= i === 0 ? 'is-active' : '' %>" role="group" aria-roledescription="diapositiva" aria-label="<%= i + 1 %> de <%= s.hero_slides.length %>" <% if (i) { %>aria-hidden="true"<% } %>>
+      <img class="hero__bg" src="<%= sl.image %>" srcset="<%= thumb(sl.image) %> 640w, <%= sl.image %> 1600w" sizes="100vw" alt="" <% if (i === 0) { %>fetchpriority="high"<% } else { %>loading="lazy"<% } %>>
+      <div class="wrap hero__content">
+        <% if (i === 0) { %><h1 class="hero__title"><%= sl.title %></h1><% } else { %><p class="hero__title"><%= sl.title %></p><% } %>
+        <% if (sl.subtitle) { %><p class="hero__sub"><%= sl.subtitle %></p><% } %>
+        <% if (sl.text) { %><p class="hero__text"><%= sl.text %></p><% } %>
+        <% if (sl.cta_label) { %><a href="<%= sl.cta_url %>" class="btn btn--wine btn--lg"><%= sl.cta_label %></a><% } %>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+  <% if (s.hero_slides.length > 1) { %>
+  <button class="hero__arrow hero__arrow--prev" data-prev aria-label="Anterior"><svg class="i"><use href="/img/icons.svg#chev-left"/></svg></button>
+  <button class="hero__arrow hero__arrow--next" data-next aria-label="Siguiente"><svg class="i"><use href="/img/icons.svg#chev-right"/></svg></button>
+  <div class="hero__dots"><% s.hero_slides.forEach((sl, i) => { %><button data-dot="<%= i %>" aria-label="Ir a la diapositiva <%= i + 1 %>" <% if (!i) { %>aria-current="true"<% } %>></button><% }) %></div>
+  <% } %>
+</section>
+
+<section class="band band--stone">
+  <div class="wrap narrow center">
+    <h2 class="h-section"><%= s.intro_title %></h2>
+    <p class="lead"><%= s.intro_text %></p>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <h2 class="h-section center caps">Qué ofrecemos</h2>
+    <div class="offer">
+      <a class="offer__card" href="/catas">
+        <img src="/img/site/mesa-cata-sm.webp" alt="Mesa preparada para una cata de vino con maridaje" loading="lazy" width="640" height="427">
+        <div class="offer__body"><svg class="i"><use href="/img/icons.svg#glass"/></svg><h3>Catas de vino</h3><p>Catas guiadas por nuestro enólogo, con maridaje gourmet, para grupos de 6 a 10 personas.</p><span class="link-arrow">Ver catas</span></div>
+      </a>
+      <a class="offer__card" href="/tienda">
+        <img src="/img/site/tabla-quesos-sm.webp" alt="Tabla de quesos, uvas y vino" loading="lazy" width="640" height="900">
+        <div class="offer__body"><svg class="i"><use href="/img/icons.svg#store"/></svg><h3>Venta de vinos y gourmet</h3><p>Vinos de toda España, vinos veganos, quesos, embutidos, aceites, conservas y lotes regalo.</p><span class="link-arrow">Ir a la tienda</span></div>
+      </a>
+      <a class="offer__card" href="/tienda#envios">
+        <img src="/img/site/servir-blanco-sm.webp" alt="Sirviendo una copa de vino blanco" loading="lazy" width="640" height="427">
+        <div class="offer__body"><svg class="i"><use href="/img/icons.svg#truck"/></svg><h3>Entrega a domicilio</h3><p>Envío gratis en Madrid para pedidos de más de <%= money(s.free_shipping_threshold_cents) %>, o recogida en tienda.</p><span class="link-arrow">Comprar online</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<% if (featured.length) { %>
+<section class="band band--light">
+  <div class="wrap">
+    <div class="band__head">
+      <h2 class="h-section">Selección de la casa</h2>
+      <a href="/tienda" class="link-arrow">Ver toda la tienda</a>
+    </div>
+    <div class="pgrid pgrid--scroll">
+      <% featured.forEach(p => { %><%- include('../partials/product-card', { p }) %><% }) %>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<section class="band band--stone">
+  <div class="wrap">
+    <h2 class="h-section center"><%= s.groups_title %></h2>
+    <div class="quote-card"><p><%= s.groups_text %></p></div>
+    <div class="tgrid">
+      <% tastings.forEach(t => { %>
+      <article class="tcard">
+        <h3><%= t.name %></h3>
+        <p class="tcard__sub"><%= t.subtitle %></p>
+        <ul class="facts">
+          <li><svg class="i"><use href="/img/icons.svg#clock"/></svg><%= t.duration %></li>
+          <li><svg class="i"><use href="/img/icons.svg#users"/></svg><%= t.min_people %>–<%= t.max_people %> personas</li>
+          <li><svg class="i"><use href="/img/icons.svg#glass"/></svg><%= t.price_text %></li>
+        </ul>
+        <a href="/catas#<%= t.slug %>" class="link-arrow">Más información</a>
+      </article>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band" style="--bg: url('/img/site/brindis.webp')">
+  <div class="wrap center">
+    <h2>Reserva tu cata con maridaje</h2>
+    <p>Elige fecha y número de personas y te confirmamos en menos de 24 h.</p>
+    <div class="btn-row center">
+      <a href="/catas#reservar" class="btn btn--wine btn--lg">Reservar ahora</a>
+      <a href="tel:<%= s.phone_intl %>" class="btn btn--light btn--lg">Llámanos</a>
+    </div>
+  </div>
+</section>
+
+<% if (posts.length) { %>
+<section class="band">
+  <div class="wrap">
+    <div class="band__head">
+      <h2 class="h-section">Del blog</h2>
+      <a href="/blog" class="link-arrow">Todos los artículos</a>
+    </div>
+    <div class="bgrid">
+      <% posts.forEach(post => { %><%- include('../partials/post-card', { post }) %><% }) %>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<%- include('../partials/foot') %>

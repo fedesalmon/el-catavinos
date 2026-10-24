@@ -1,0 +1,13 @@
+<%- include('_head', { title: 'Catas' }) %>
+<div class="ahead"><h1>Tipos de cata</h1><div class="ahead__actions"><a href="/admin/catas/nueva" class="abtn abtn--wine">+ Nueva cata</a></div></div>
+<p class="small muted">Estas son las catas que aparecen en la página «Catas» y en el formulario de reserva. Para vender entradas a una cata abierta o tarjetas regalo, crea un producto en la categoría «Catas y experiencias».</p>
+<div class="acards">
+  <% list.forEach(t => { %>
+  <a href="/admin/catas/<%= t.id %>" class="acard arow <%= t.active ? '' : 'is-off' %>">
+    <img src="<%= t.image ? thumb(t.image) : '/img/site/copas-fila-sm.webp' %>" alt="">
+    <span><strong><%= t.name %></strong><small class="muted block"><%= t.subtitle %> · <%= t.price_text %></small></span>
+    <span class="right">Editar →</span>
+  </a>
+  <% }) %>
+</div>
+<%- include('_foot') %>

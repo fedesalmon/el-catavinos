@@ -1,0 +1,30 @@
+<%- include('_head', { title: 'Mi cuenta' }) %>
+<div class="ahead"><h1>Mi cuenta y usuarios</h1></div>
+<% if (error) { %><div class="aerr"><%= error %></div><% } %>
+<div class="agrid2">
+  <form method="post" class="acard">
+    <h2>Cambiar mi contraseña</h2>
+    <input type="hidden" name="action" value="password">
+    <label class="af">Contraseña actual<input type="password" name="current" required autocomplete="current-password"></label>
+    <label class="af">Nueva contraseña <small>Mínimo 8 caracteres</small><input type="password" name="password" required minlength="8" autocomplete="new-password"></label>
+    <button class="abtn abtn--wine">Cambiar contraseña</button>
+  </form>
+  <section class="acard">
+    <h2>Personas con acceso al panel</h2>
+    <ul class="alist">
+      <% admins.forEach(a => { %>
+      <li><span><strong><%= a.name || a.email %></strong><small><%= a.email %></small></span>
+        <% if (a.id !== admin.id) { %><form method="post"><input type="hidden" name="action" value="remove"><input type="hidden" name="id" value="<%= a.id %>"><button class="abtn abtn--danger abtn--sm" data-confirm="¿Quitar el acceso a <%= a.email %>?">Quitar</button></form><% } else { %><small class="muted">Tú</small><% } %></li>
+      <% }) %>
+    </ul>
+    <form method="post" class="aform-inline">
+      <input type="hidden" name="action" value="add">
+      <h3>Añadir persona</h3>
+      <label class="af">Nombre<input name="name"></label>
+      <label class="af">Email<input type="email" name="email" required></label>
+      <label class="af">Contraseña inicial<input type="password" name="password" required minlength="8" autocomplete="new-password"></label>
+      <button class="abtn abtn--ghost">Añadir</button>
+    </form>
+  </section>
+</div>
+<%- include('_foot') %>

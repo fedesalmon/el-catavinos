@@ -1,0 +1,34 @@
+<%- include('_head', { title: 'Productos' }) %>
+<div class="ahead"><h1>Productos <small class="muted">(<%= products.length %>)</small></h1>
+  <div class="ahead__actions">
+    <a href="/admin/productos/nuevo" class="abtn abtn--wine">+ Nuevo producto</a>
+    <a href="/admin/productos-importar" class="abtn abtn--ghost">Importar CSV</a>
+    <a href="/admin/productos-exportar.csv" class="abtn abtn--ghost">Exportar</a>
+  </div>
+</div>
+<form class="afilters" method="get">
+  <input type="search" name="q" value="<%= q %>" placeholder="Buscar por nombre o región">
+  <select name="cat" onchange="this.form.submit()"><option value="">Todas las categorías</option><% categories.forEach(c => { %><option value="<%= c.id %>" <%= cat === c.id ? 'selected' : '' %>><%= c.name %></option><% }) %></select>
+  <select name="estado" onchange="this.form.submit()"><option value="">Todos</option><option value="agotados" <%= estado === 'agotados' ? 'selected' : '' %>>Agotados</option><option value="ocultos" <%= estado === 'ocultos' ? 'selected' : '' %>>Ocultos</option></select>
+  <button class="abtn abtn--ghost">Buscar</button>
+</form>
+<p class="small muted">Consejo: cambia el stock o el precio directamente en la lista y se guarda solo.</p>
+<div class="atable-wrap">
+<table class="atable aprods">
+  <thead><tr><th></th><th>Producto</th><th>Precio (€)</th><th>Stock</th><th>Visible</th><th></th></tr></thead>
+  <tbody>
+  <% products.forEach(p => { %>
+    <tr class="<%= p.active ? '' : 'is-off' %>">
+      <td class="thumbcell"><% if (p.image) { %><img src="<%= thumb(p.image) %>" alt="" loading="lazy"><% } %></td>
+      <td><a href="/admin/productos/<%= p.id %>" class="strong"><%= p.name %></a><small class="muted block"><%= p.category_name || 'Sin categoría' %><%= p.featured ? ' · ★ Destacado' : '' %><%= p.vegan ? ' · Vegano' : '' %></small></td>
+      <td data-label="Precio"><input class="quick" data-quick="/admin/productos/<%= p.id %>/rapido" name="price" value="<%= centsToInput(p.price_cents) %>" inputmode="decimal" aria-label="Precio"></td>
+      <td data-label="Stock"><input class="quick quick--sm <%= p.stock <= 0 ? 'is-zero' : p.stock <= 3 ? 'is-low' : '' %>" data-quick="/admin/productos/<%= p.id %>/rapido" name="stock" type="number" min="0" value="<%= p.stock %>" aria-label="Stock"></td>
+      <td data-label="Visible"><label class="switch"><input type="checkbox" data-quick="/admin/productos/<%= p.id %>/rapido" name="active" <%= p.active ? 'checked' : '' %>><span></span></label></td>
+      <td class="right"><a href="/admin/productos/<%= p.id %>" class="abtn abtn--sm abtn--ghost">Editar</a></td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table>
+</div>
+<% if (!products.length) { %><p class="muted">No hay productos con estos filtros.</p><% } %>
+<%- include('_foot') %>

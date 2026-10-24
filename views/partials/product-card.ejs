@@ -1,0 +1,23 @@
+<article class="pcard">
+  <a href="/tienda/<%= p.slug %>" class="pcard__img">
+    <% if (p.image) { %><img src="<%= thumb(p.image) %>" alt="<%= p.name %>" loading="lazy" width="400" height="500"><% } else { %><span class="pcard__ph" aria-hidden="true"><svg class="i"><use href="/img/icons.svg#bottle"/></svg></span><% } %>
+    <span class="pcard__tags">
+      <% if (p.vegan) { %><span class="tag tag--green">Vegano</span><% } %>
+      <% if (p.compare_cents && p.compare_cents > p.price_cents) { %><span class="tag tag--wine">Oferta</span><% } %>
+      <% if (p.stock <= 0) { %><span class="tag tag--dark">Agotado</span><% } else if (p.stock <= 3) { %><span class="tag">Últimas unidades</span><% } %>
+    </span>
+  </a>
+  <div class="pcard__body">
+    <% if (p.region || p.category_name) { %><p class="pcard__meta"><%= p.region || p.category_name %></p><% } %>
+    <h3 class="pcard__name"><a href="/tienda/<%= p.slug %>"><%= p.name %></a></h3>
+    <div class="pcard__foot">
+      <p class="price"><%= money(p.price_cents) %><% if (p.compare_cents && p.compare_cents > p.price_cents) { %> <s><%= money(p.compare_cents) %></s><% } %></p>
+      <% if (p.stock > 0) { %>
+      <form action="/carrito/agregar" method="post" data-add-to-cart>
+        <input type="hidden" name="product_id" value="<%= p.id %>">
+        <button class="btn btn--wine btn--sm" aria-label="Añadir <%= p.name %> al carrito"><svg class="i"><use href="/img/icons.svg#plus"/></svg><span>Añadir</span></button>
+      </form>
+      <% } %>
+    </div>
+  </div>
+</article>
