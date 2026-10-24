@@ -38,14 +38,36 @@
     el.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } });
   });
 
+  // Reduce las fotos en el navegador antes de subirlas (las fotos del móvil pueden
+  // superar el límite de 4,5 MB por envío de Vercel). Si no se puede, se sube tal cual.
+  async function shrink(file, max = 2200) {
+    if (!/^image\//.test(file.type) || file.size < 1.2e6) return file;
+    try {
+      const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+      const k = Math.min(1, max / Math.max(bmp.width, bmp.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+      c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+      const blob = await new Promise((r) => c.toBlob(r, 'image/jpeg', 0.88));
+      return blob ? new File([blob], file.name.replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' }) : file;
+    } catch { return file; }
+  }
+
   // Vista previa de la foto elegida.
-  document.querySelectorAll('input[type=file][data-preview]').forEach((input) => input.addEventListener('change', () => {
+  document.querySelectorAll('input[type=file][accept^="image"]').forEach((input) => input.addEventListener('change', async () => {
     const f = input.files[0];
     if (!f) return;
     const label = input.closest('.afile');
-    label.querySelector('span').textContent = '✓ ' + f.name;
+    const span = label.querySelector('span');
+    span.textContent = 'Preparando foto…';
+    const small = await shrink(f);
+    if (small !== f && window.DataTransfer) {
+      const dt = new DataTransfer(); dt.items.add(small); input.files = dt.files;
+    }
+    span.textContent = '✓ ' + f.name;
+    if (!input.matches('[data-preview]')) return;
     let img = label.parentElement.querySelector('img');
     if (!img) { img = document.createElement('img'); img.className = 'aimg-prev'; label.before(img); }
-    img.src = URL.createObjectURL(f);
+    img.src = URL.createObjectURL(small);
   }));
 })();

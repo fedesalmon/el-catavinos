@@ -1,6 +1,6 @@
 // Carrito guardado en una cookie: { "<productId>": cantidad }.
 // Precios y stock siempre se recalculan desde la base de datos.
-const { db } = require('../db');
+const { find } = require('../db');
 
 const COOKIE = 'cart';
 const MAX_QTY = 99;
@@ -24,12 +24,9 @@ function writeCart(res, cart) {
   res.cookie(COOKIE, JSON.stringify(cart), { httpOnly: true, sameSite: 'lax', maxAge: 30 * 864e5, path: '/' });
 }
 
-function loadCart(req) {
-  const raw = rawCart(req);
+async function loadCart(req, raw = rawCart(req)) {
   const ids = Object.keys(raw).map(Number);
-  const products = ids.length
-    ? db.prepare(`SELECT * FROM products WHERE active = 1 AND id IN (${ids.map(() => '?').join(',')})`).all(...ids)
-    : [];
+  const products = ids.length ? await find('products', { active: 1, id: { $in: ids } }) : [];
   const items = [];
   for (const p of products) {
     const qty = Math.min(raw[p.id], Math.max(p.stock, 0));

@@ -3,6 +3,7 @@ const path = require('path');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const { getSettings } = require('./src/db');
+const { seedIfEmpty } = require('./src/seed');
 const { loadAdmin } = require('./src/lib/auth');
 const { rawCart } = require('./src/lib/cart');
 const { UPLOAD_DIR, thumb } = require('./src/lib/images');
@@ -52,9 +53,18 @@ app.use((req, res, next) => {
   next();
 });
 
+// Primera petición de cada instancia: carga el contenido inicial si la base de datos está vacía.
+let ready;
+app.use(async (req, res, next) => {
+  ready = ready || seedIfEmpty().catch((err) => { ready = null; throw err; });
+  await ready;
+  expireUnpaidCardOrders().catch((err) => console.error(err));
+  next();
+});
+
 app.use(loadAdmin);
-app.use((req, res, next) => {
-  const settings = getSettings();
+app.use(async (req, res, next) => {
+  const settings = await getSettings();
   const cart = rawCart(req);
   Object.assign(res.locals, util, {
     s: settings,
@@ -79,11 +89,8 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
   res.status(500).render('pages/404', { meta: { title: 'Ha ocurrido un error' }, error: true });
 });
 
-setInterval(expireUnpaidCardOrders, 15 * 60e3).unref();
-
 const PORT = process.env.PORT || 3000;
 if (require.main === module) {
-  require('./src/seed').seedIfEmpty();
   app.listen(PORT, () => console.log(`El Catavinos en http://localhost:${PORT}  (panel: /admin)`));
 }
 

@@ -8,12 +8,13 @@ Rebuild of [elcatavinos.net](https://elcatavinos.net) (a wine shop and tasting v
 - **Admin panel** (`/admin`, in Spanish, works on phones). It covers orders, bookings, messages, products (inline price/stock edits, photo upload with automatic WebP optimisation, CSV import/export), categories, tasting types, blog, homepage slider, all page texts, store settings, legal texts and admin users.
 - **SEO**: per-page meta and Open Graph tags, LocalBusiness and Product JSON-LD, `sitemap.xml`, `robots.txt`, and 301 redirects from the old WordPress URLs.
 
-**Stack:** Node 20+, Express 5, EJS (server-rendered), SQLite (better-sqlite3), sharp, Stripe, Nodemailer. No build step.
+**Stack:** Node 22, Express 5, EJS (server-rendered), MongoDB, Vercel Blob (uploads), sharp, Stripe, Nodemailer. Deployed on Vercel as a single serverless function (`api/index.js`) with `public/` served from the CDN; see `vercel.json`. No build step.
 
 ```bash
 npm install
 cp .env.example .env
 npm start            # http://localhost:3000, admin at /admin
+                     # without MONGODB_URI a local dev MongoDB is started (data/)
 ```
 
 The owner-facing guide, with setup for Stripe, SMTP and hosting, is in Spanish in [LEEME.md](LEEME.md).
@@ -22,7 +23,8 @@ The owner-facing guide, with setup for Stripe, SMTP and hosting, is in Spanish i
 
 ```
 server.js               app setup, legacy redirects, locals
-src/db.js               schema + settings store
+api/index.js            Vercel entry point
+src/db.js               MongoDB connection, ids, settings store
 src/default-settings.js all editable site content (defaults)
 src/seed.js             initial catalog, tastings, blog posts, first admin
 src/routes/             public.js · shop.js · admin.js · webhook.js
@@ -30,7 +32,7 @@ src/lib/                cart, orders, payments, auth, images, mail, csv, util
 views/pages|partials    public templates
 views/admin             admin templates
 public/                 css, js, icons, images
-data/                   SQLite DB + uploads (persistent, gitignored)
+data/                   local dev DB + uploads (gitignored)
 ```
 
 The sample wines are real, widely distributed Spanish references. Their descriptions are original, and their prices are indicative. Bottle images are generated placeholders that the owners should replace with licensed photos.

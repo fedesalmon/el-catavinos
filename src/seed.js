@@ -3,9 +3,9 @@
 // Los precios son orientativos y las imágenes de vinos son ilustraciones provisionales:
 // sustitúyelas desde el panel por las fotos reales de cada botella.
 require('./load-env');
-const { db } = require('./db');
-const { hashPassword } = require('./lib/auth');
-const { token } = require('./lib/util');
+const { getDb, col, now } = require('./db');
+const { createAdmin } = require('./lib/auth');
+const { token, slugify } = require('./lib/util');
 
 const IMG = (f) => `/img/products/${f}.webp`;
 
@@ -76,25 +76,40 @@ const posts = [
     '/img/site/mesa-cata.webp', '2026-02-01'],
 ];
 
-function seedContent() {
-  const insCat = db.prepare('INSERT INTO categories (slug, name, description, sort) VALUES (?, ?, ?, ?)');
-  categories.forEach((c, i) => insCat.run(c[0], c[1], c[2], i));
-  const catId = Object.fromEntries(db.prepare('SELECT slug, id FROM categories').all().map((r) => [r.slug, r.id]));
-  const { slugify } = require('./lib/util');
-  const insP = db.prepare(`INSERT INTO products (slug, name, category_id, short_desc, price_cents, stock, image, region, grape, volume, pairing, featured, shippable, sort)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
-  products.forEach((p, i) => insP.run(slugify(p[1]), p[1], catId[p[0]], p[9], Math.round(p[2] * 100), p[3], IMG(p[4]), p[5], p[6], p[7], p[8], p[10], p[11], i));
-  const insT = db.prepare('INSERT INTO tastings (slug, name, subtitle, description, duration, price_text, min_people, max_people, image, sort) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-  tastings.forEach((t, i) => insT.run(...t, i));
-  const insPost = db.prepare('INSERT INTO posts (slug, title, excerpt, body, image, published_at) VALUES (?, ?, ?, ?, ?, ?)');
-  posts.forEach((p) => insPost.run(...p));
+async function seedContent() {
+  const db = await getDb();
+  await db.collection('categories').insertMany(categories.map((c, i) => ({ id: i + 1, slug: c[0], name: c[1], description: c[2], image: '', sort: i })));
+  const catId = Object.fromEntries(categories.map((c, i) => [c[0], i + 1]));
+  const ts = now();
+  await db.collection('products').insertMany(products.map((p, i) => ({
+    id: i + 1, slug: slugify(p[1]), name: p[1], category_id: catId[p[0]], short_desc: p[9], description: '',
+    price_cents: Math.round(p[2] * 100), compare_cents: null, stock: p[3], image: IMG(p[4]), region: p[5], grape: p[6], vintage: '',
+    volume: p[7], pairing: p[8], vegan: 0, featured: p[10], shippable: p[11], active: 1, sort: i, created_at: ts, updated_at: ts,
+  })));
+  await db.collection('tastings').insertMany(tastings.map((t, i) => ({
+    id: i + 1, slug: t[0], name: t[1], subtitle: t[2], description: t[3], duration: t[4], price_text: t[5],
+    min_people: t[6], max_people: t[7], image: t[8], active: 1, sort: i,
+  })));
+  await db.collection('posts').insertMany(posts.map((p, i) => ({
+    id: i + 1, slug: p[0], title: p[1], excerpt: p[2], body: p[3], image: p[4], published: 1, published_at: p[5], created_at: ts,
+  })));
+  const counters = db.collection('counters');
+  for (const [name, n] of [['categories', categories.length], ['products', products.length], ['tastings', tastings.length], ['posts', posts.length]]) {
+    await counters.updateOne({ _id: name }, { $max: { seq: n } }, { upsert: true });
+  }
 }
 
-function ensureAdmin() {
-  if (db.prepare('SELECT COUNT(*) n FROM admins').get().n) return;
+async function ensureAdmin() {
+  const admins = await col('admins');
+  if (await admins.countDocuments()) return;
   const email = (process.env.ADMIN_EMAIL || 'admin@elcatavinos.net').toLowerCase();
   const password = process.env.ADMIN_PASSWORD || token(6);
-  db.prepare('INSERT INTO admins (email, name, password_hash) VALUES (?, ?, ?)').run(email, 'Administrador', hashPassword(password));
+  try {
+    await createAdmin(email, password, 'Administrador');
+  } catch (err) {
+    if (err.code === 11000) return; // otra instancia lo creó a la vez
+    throw err;
+  }
   console.log('\n================================================================');
   console.log(' Usuario administrador creado para el panel /admin');
   console.log(`   Email:      ${email}`);
@@ -103,11 +118,25 @@ function ensureAdmin() {
   console.log('================================================================\n');
 }
 
-function seedIfEmpty() {
-  if (!db.prepare('SELECT COUNT(*) n FROM categories').get().n) seedContent();
-  ensureAdmin();
+// Carga el contenido inicial una sola vez (el "candado" evita que dos arranques
+// simultáneos en Vercel lo carguen por duplicado).
+async function seedIfEmpty() {
+  const meta = await col('meta');
+  try {
+    await meta.insertOne({ _id: 'seed', at: now() });
+  } catch (err) {
+    if (err.code !== 11000) throw err;
+    return ensureAdmin(); // ya estaba cargado
+  }
+  try {
+    await seedContent();
+  } catch (err) {
+    await meta.deleteOne({ _id: 'seed' }); // permitir reintentar en el siguiente arranque
+    throw err;
+  }
+  await ensureAdmin();
 }
 
 module.exports = { seedIfEmpty };
 
-if (require.main === module) seedIfEmpty();
+if (require.main === module) seedIfEmpty().then(() => process.exit(0), (e) => { console.error(e); process.exit(1); });

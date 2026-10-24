@@ -8,7 +8,7 @@ Web nueva de El Catavinos con **tienda online** y **panel de gestión**. Todo se
 2. Entra con tu email y contraseña. Cámbiala la primera vez en **Mi cuenta**.
 3. Desde **Mi cuenta** también puedes dar acceso a otras personas del equipo.
 
-> ¿Has olvidado la contraseña? Quien gestione el servidor puede restablecerla con:
+> ¿Has olvidado la contraseña? Quien gestione la web puede restablecerla en local, con el `MONGODB_URI` de producción en `.env`:
 > `npm run create-admin -- tu@email.com NuevaContraseña`
 
 ## Qué se puede hacer en el panel
@@ -57,30 +57,43 @@ Usad solo fotos y textos que tengáis derecho a usar. No se pueden copiar las fi
 
 ## Puesta en marcha (para quien instale la web)
 
-Necesita **Node.js 20 o superior**.
+La web está preparada para **Vercel + MongoDB Atlas + Vercel Blob**, igual que el resto de webs.
+
+### Publicar en Vercel
+
+1. En Vercel: **Add New… › Project**, importa el repositorio de GitHub y pulsa **Deploy**. No hace falta tocar ninguna opción, porque todo está en `vercel.json`.
+2. En **Settings › Environment Variables** añade:
+   - `MONGODB_URI`: la cadena de conexión de MongoDB Atlas. Puede ser el mismo cluster de otras webs: los datos van en una base de datos aparte llamada `elcatavinos`.
+   - `ADMIN_EMAIL` y `ADMIN_PASSWORD`: el primer usuario del panel.
+3. En **Storage › Create › Blob**, crea un almacén y conéctalo al proyecto. Así se guardan las fotos que subáis desde el panel; Vercel añade `BLOB_READ_WRITE_TOKEN` automáticamente.
+4. **Deployments › Redeploy** para aplicar las variables.
+
+La primera visita crea automáticamente el contenido inicial (productos, catas, blog) y el usuario del panel.
+
+> En MongoDB Atlas, *Network Access* debe permitir conexiones desde Vercel (`0.0.0.0/0`), como en las demás webs.
+
+### Desarrollo en local
+
+Necesita **Node.js 22**.
 
 ```bash
 npm install
-cp .env.example .env   # y rellena los valores
+cp .env.example .env   # opcional: MONGODB_URI, etc.
 npm start              # http://localhost:3000  ·  panel en /admin
 ```
 
-La primera vez que arranca, crea la base de datos con el contenido inicial y el usuario del panel (`ADMIN_EMAIL` / `ADMIN_PASSWORD`).
+Sin `MONGODB_URI`, en local se arranca una base de datos de prueba que se guarda en `data/`.
 
 ### Activar los pagos con tarjeta (Stripe)
 
 1. Crea una cuenta en <https://stripe.com> y copia la **clave secreta** en `STRIPE_SECRET_KEY`.
 2. En Stripe › Developers › Webhooks, añade el endpoint `https://TU-DOMINIO/stripe/webhook` con los eventos `checkout.session.completed` y `checkout.session.expired`. Copia el secreto de firma en `STRIPE_WEBHOOK_SECRET`.
-3. Reinicia la web. La opción de tarjeta aparecerá en el checkout.
+3. Vuelve a desplegar. La opción de tarjeta aparecerá en el checkout.
 
 ### Activar los avisos por email
 
 Rellena `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` y `MAIL_FROM`. Con Gmail: `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=465` y una [contraseña de aplicación](https://myaccount.google.com/apppasswords). Sin SMTP la web funciona igual: todo queda en el panel.
 
-### Alojamiento
+### Dominio
 
-Cualquier servidor con Node.js sirve: un VPS, Render, Railway, Fly.io… También hay un `Dockerfile`.
-
-- La base de datos y las fotos subidas se guardan en la carpeta `data/`, o en `DATA_DIR` si se define. **Esa carpeta debe ser persistente y hay que hacer copias de seguridad.**
-- Define `BASE_URL` con el dominio final (por ejemplo, `https://elcatavinos.net`).
-- Las direcciones de la web antigua (`/maridaje-en-madrid/`, `/vinoteca-en-madrid/`…) redirigen automáticamente a las nuevas para no perder posicionamiento en Google.
+En Vercel › Settings › Domains añade `elcatavinos.net` cuando queráis sustituir la web antigua. Las direcciones antiguas (`/maridaje-en-madrid/`, `/vinoteca-en-madrid/`…) redirigen solas a las nuevas para no perder posicionamiento en Google.

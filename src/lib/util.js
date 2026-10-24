@@ -13,18 +13,22 @@ const centsToInput = (c) => (c === null || c === undefined ? '' : (c / 100).toFi
 
 function slugify(s) {
   return String(s || '')
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
     .slice(0, 80) || 'item';
 }
 
-function uniqueSlug(db, table, base, excludeId) {
-  let slug = slugify(base);
+// Genera un slug único dentro de una colección de MongoDB.
+async function uniqueSlug(col, base, excludeId) {
+  const root = slugify(base);
+  let slug = root;
   let i = 2;
-  const q = db.prepare(`SELECT id FROM ${table} WHERE slug = ? AND id != ?`);
-  while (q.get(slug, excludeId || 0)) slug = `${slugify(base)}-${i++}`;
+  // eslint-disable-next-line no-await-in-loop
+  while (await col.findOne({ slug, id: { $ne: excludeId || 0 } }, { projection: { _id: 1 } })) slug = `${root}-${i++}`;
   return slug;
 }
+
+const escapeRegex = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const escapeHtml = (s) => String(s ?? '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -81,6 +85,6 @@ const clampInt = (v, min, max, dflt) => {
 };
 
 module.exports = {
-  money, parseEuros, centsToInput, slugify, uniqueSlug, escapeHtml, markdown, paragraphs,
+  money, parseEuros, centsToInput, slugify, uniqueSlug, escapeRegex, escapeHtml, markdown, paragraphs,
   token, orderNumber, isEmail, formatDate, formatDateTime, clampInt,
 };
