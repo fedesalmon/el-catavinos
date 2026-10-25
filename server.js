@@ -86,7 +86,17 @@ app.use('/', require('./src/routes/public'));
 app.use((req, res) => res.status(404).render('pages/404', { meta: { title: 'Página no encontrada' } }));
 app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
   console.error(err);
-  res.status(500).render('pages/404', { meta: { title: 'Ha ocurrido un error' }, error: true });
+  if (res.locals.s) return res.status(500).render('pages/404', { meta: { title: 'Ha ocurrido un error' }, error: true });
+  // Fallo antes de cargar los ajustes (normalmente la conexión a MongoDB): página mínima con
+  // una pista para quien configura la web, sin mostrar contraseñas.
+  const isDb = /^Mongo|MONGODB_URI/.test(`${err.name} ${err.message}`);
+  const detail = String(err.message || '').replace(/mongodb(\+srv)?:\/\/[^\s@]*@/g, 'mongodb$1://***@').slice(0, 300);
+  res.status(500).type('html').send(`<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>El Catavinos</title></head><body style="font-family:system-ui,sans-serif;max-width:640px;margin:15vh auto;padding:0 20px;color:#303133">
+<h1 style="color:#8e4041;font-family:Georgia,serif">Volvemos enseguida</h1>
+<p>La web no está disponible en este momento. Inténtalo de nuevo en unos minutos.</p>
+${isDb ? `<p style="font-size:13px;color:#777;border-top:1px solid #ddd;padding-top:12px">Diagnóstico (base de datos): ${util.escapeHtml(err.name)}: ${util.escapeHtml(detail)}</p>` : ''}
+</body></html>`);
 });
 
 const PORT = process.env.PORT || 3000;
