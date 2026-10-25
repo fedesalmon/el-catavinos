@@ -63,8 +63,8 @@ La web está preparada para **Vercel + MongoDB Atlas + Vercel Blob**, igual que 
 
 1. En Vercel: **Add New… › Project**, importa el repositorio de GitHub y pulsa **Deploy**. No hace falta tocar ninguna opción, porque todo está en `vercel.json`.
 2. En **Settings › Environment Variables** añade:
-   - `MONGODB_URI`: la cadena de conexión de MongoDB Atlas. Puede ser el mismo cluster de otras webs: los datos van en una base de datos aparte llamada `elcatavinos`.
-   - `ADMIN_EMAIL` y `ADMIN_PASSWORD`: el primer usuario del panel.
+   - `MONGODB_URI`: la cadena de conexión de MongoDB Atlas. La forma más fácil es **Storage › Connect Database › MongoDB Atlas**, que la añade sola. Puede ser el mismo cluster de otras webs: los datos van en una base de datos aparte llamada `elcatavinos`.
+   - (Opcional) `ADMIN_EMAIL` y `ADMIN_PASSWORD`. Si no se ponen, la primera vez que se abre `/admin` la web pide crear la cuenta del panel: hacedlo justo después de publicar.
 3. En **Storage › Create › Blob**, crea un almacén y conéctalo al proyecto. Así se guardan las fotos que subáis desde el panel; Vercel añade `BLOB_READ_WRITE_TOKEN` automáticamente.
 4. **Deployments › Redeploy** para aplicar las variables.
 

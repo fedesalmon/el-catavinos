@@ -5,7 +5,7 @@
 require('./load-env');
 const { getDb, col, now } = require('./db');
 const { createAdmin } = require('./lib/auth');
-const { token, slugify } = require('./lib/util');
+const { slugify } = require('./lib/util');
 
 const IMG = (f) => `/img/products/${f}.webp`;
 
@@ -102,8 +102,10 @@ async function seedContent() {
 async function ensureAdmin() {
   const admins = await col('admins');
   if (await admins.countDocuments()) return;
+  // Sin ADMIN_PASSWORD, la primera persona que entra en /admin crea la cuenta (ver routes/admin.js).
+  if (!process.env.ADMIN_PASSWORD) return;
   const email = (process.env.ADMIN_EMAIL || 'admin@elcatavinos.net').toLowerCase();
-  const password = process.env.ADMIN_PASSWORD || token(6);
+  const password = process.env.ADMIN_PASSWORD;
   try {
     await createAdmin(email, password, 'Administrador');
   } catch (err) {
@@ -113,7 +115,7 @@ async function ensureAdmin() {
   console.log('\n================================================================');
   console.log(' Usuario administrador creado para el panel /admin');
   console.log(`   Email:      ${email}`);
-  console.log(`   Contraseña: ${process.env.ADMIN_PASSWORD ? '(la definida en ADMIN_PASSWORD)' : password}`);
+  console.log('   Contraseña: (la definida en ADMIN_PASSWORD)');
   console.log(' Cámbiala desde Admin › Mi cuenta.');
   console.log('================================================================\n');
 }

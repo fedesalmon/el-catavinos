@@ -37,9 +37,31 @@ router.use(async (req, res, next) => {
 
 // ---- Login ------------------------------------------------------------------
 
-router.get('/login', (req, res) => {
+const noAdminsYet = async () => (await (await col('admins')).countDocuments()) === 0;
+
+router.get('/login', async (req, res) => {
   if (req.admin) return res.redirect('/admin');
+  if (await noAdminsYet()) return res.render('admin/setup', { error: null, form: {} });
   res.render('admin/login', { error: null, next: req.query.next || '/admin' });
+});
+
+// Primera vez: si todavía no existe ningún usuario, se crea la cuenta del panel desde aquí.
+router.post('/setup', async (req, res) => {
+  if (!(await noAdminsYet())) return res.redirect(303, '/admin/login');
+  const form = { name: str(req.body.name, 80), email: str(req.body.email, 160).toLowerCase() };
+  const password = String(req.body.password || '');
+  let error = null;
+  if (!isEmail(form.email)) error = 'Indica un email válido.';
+  else if (password.length < 8) error = 'La contraseña debe tener al menos 8 caracteres.';
+  else if (password !== String(req.body.password2 || '')) error = 'Las contraseñas no coinciden.';
+  if (error) return res.status(422).render('admin/setup', { error, form });
+  try {
+    await auth.createAdmin(form.email, password, form.name);
+  } catch (err) {
+    if (err.code !== 11000) throw err;
+  }
+  await auth.login(req, res, form.email, password);
+  back(res, '/admin', 'Cuenta creada. ¡Bienvenido al panel!');
 });
 
 router.post('/login', async (req, res) => {
